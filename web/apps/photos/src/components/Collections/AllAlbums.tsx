@@ -11,6 +11,7 @@ import {
     useMediaQuery,
 } from "@mui/material";
 import { FilledIconButton } from "ente-base/components/mui";
+import { downloadString } from "ente-base/utils/web";
 import { CollectionsSortOptions } from "ente-new/photos/components/CollectionsSortOptions";
 import { SlideUpTransition } from "ente-new/photos/components/mui/SlideUpTransition";
 import {
@@ -20,10 +21,12 @@ import {
 } from "ente-new/photos/components/Tiles";
 import type { CollectionSummary } from "ente-new/photos/services/collection/ui";
 import { CollectionsSortBy } from "ente-new/photos/services/collection/ui";
+import { getAllLatestCollections } from "ente-new/photos/services/collections";
 import { FlexWrapper, FluidContainer } from "ente-shared/components/Container";
 import { t } from "i18next";
 import memoize from "memoize-one";
-import React, { useEffect, useRef, useState } from "react";
+import { GalleryContext } from "pages/gallery";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { areEqual, FixedSizeList, ListChildComponentProps } from "react-window";
 
@@ -125,6 +128,7 @@ const Title = ({
                 </Box>
             </FluidContainer>
             <Stack direction="row" sx={{ gap: 1.5 }}>
+                <BatchExportButton />
                 <CollectionsSortOptions
                     activeSortBy={collectionsSortBy}
                     onChangeSortBy={onChangeCollectionsSortBy}
@@ -300,3 +304,39 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
         </LargeTileTextOverlay>
     </ItemCard>
 );
+
+const BatchExportButton = ({}) => {
+    const { syncWithRemote } = useContext(GalleryContext);
+
+    const callback = async () => {
+        const collections = await getAllLatestCollections();
+        let outputData = "id,old_name,new_name";
+        for (const collection of collections) {
+            outputData += "\n";
+            outputData += collection.id;
+            outputData += ",";
+            // TODO: escape name
+            outputData += collection.name;
+            outputData += ",";
+            outputData += collection.name;
+        }
+        downloadString(outputData, "collections.csv");
+
+        // const collectionID = 1580559964003444;
+        // const newName = "Katrin Exit Game (Test 10)";
+        // for (const collection of collections) {
+        //     if (collection.id !== collectionID) {
+        //         continue;
+        //     }
+        //     console.log("before", collection);
+        //     await CollectionAPI.renameCollection(collection, newName);
+        //     console.log("after", collection);
+        // }
+        // await syncWithRemote(false, true);
+        // console.log("synced");
+    };
+
+    return (
+        <button onClick={callback}>Batch Export</button>
+    );
+};

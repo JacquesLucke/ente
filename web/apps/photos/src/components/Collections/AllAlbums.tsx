@@ -23,6 +23,10 @@ import {
 import type { CollectionSummary } from "ente-new/photos/services/collection/ui";
 import { CollectionsSortBy } from "ente-new/photos/services/collection/ui";
 import { getAllLatestCollections } from "ente-new/photos/services/collections";
+import {
+    getLocalFiles,
+    groupFilesByCollectionID,
+} from "ente-new/photos/services/files";
 import { FlexWrapper, FluidContainer } from "ente-shared/components/Container";
 import { t } from "i18next";
 import memoize from "memoize-one";
@@ -313,13 +317,42 @@ const BatchExportButton = ({}) => {
 
     const callback = async () => {
         const collections = await getAllLatestCollections();
+        const allFiles = await getLocalFiles();
+        const filesByCollection = groupFilesByCollectionID(allFiles);
+
+        const formatTimestamp = (timestamp: number) => {
+            const date = new Date(timestamp);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        };
+
         let outputData = [];
         for (const collection of collections) {
+            const collectionFiles = filesByCollection.get(collection.id) ?? [];
+            let minCreationTimeStr = "";
+            let maxCreationTimeStr = "";
+            if (collectionFiles.length > 0) {
+                const microToMilli = 1000;
+                const minCreationTime =
+                    Math.min(
+                        ...collectionFiles.map((f) => f.metadata.creationTime),
+                    ) / microToMilli;
+                const maxCreationTime =
+                    Math.max(
+                        ...collectionFiles.map((f) => f.metadata.creationTime),
+                    ) / microToMilli;
+                minCreationTimeStr = formatTimestamp(minCreationTime);
+                maxCreationTimeStr = formatTimestamp(maxCreationTime);
+            }
             outputData.push({
                 id: collection.id,
                 old_name: collection.name,
                 new_name: collection.name,
-            })
+                start_date: minCreationTimeStr,
+                end_date: maxCreationTimeStr,
+            });
         }
         downloadString(JSON.stringify(outputData, null, 2), "collections.json");
     };
@@ -348,7 +381,11 @@ const BatchApplyButton = ({}) => {
             const id = collectionData.id;
             const oldName = collectionData.old_name;
             const newName = collectionData.new_name;
-            if (typeof id !== "number" || typeof oldName !== "string" || typeof newName !== "string") {
+            if (
+                typeof id !== "number" ||
+                typeof oldName !== "string" ||
+                typeof newName !== "string"
+            ) {
                 return;
             }
             if (oldName === newName) {
@@ -364,7 +401,9 @@ const BatchApplyButton = ({}) => {
                 continue;
             }
             if (collection.name !== oldName) {
-                console.log(`Collection ${id} has a different name already: '${collection.name}'`);
+                console.log(
+                    `Collection ${id} has a different name already: '${collection.name}'`,
+                );
                 continue;
             }
             await renameCollection(collection, newName);
@@ -374,18 +413,16 @@ const BatchApplyButton = ({}) => {
         console.log("Updated", updateCount, "collections");
     };
 
-    const {
-        getInputProps,
-        openSelector,
-    } = useFileInput({
+    const { getInputProps, openSelector } = useFileInput({
         directory: false,
         onSelect: callback,
         onCancel: () => {},
     });
 
-
-
-    return <>
-    <input {...getInputProps()} />
-    <button onClick={openSelector}>Batch Apply</button></>;
+    return (
+        <>
+            <input {...getInputProps()} />
+            <button onClick={openSelector}>Batch Apply</button>
+        </>
+    );
 };

@@ -407,6 +407,7 @@ const BatchApplyButton = ({}) => {
                 continue;
             }
             await renameCollection(collection, newName);
+            console.log(`Updated collection ${id} to '${newName}'`);
             updateCount++;
         }
         await syncWithRemote(false, true);

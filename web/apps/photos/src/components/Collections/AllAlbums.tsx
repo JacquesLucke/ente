@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { FilledIconButton } from "ente-base/components/mui";
 import { downloadString } from "ente-base/utils/web";
+import { useFileInput } from "ente-gallery/components/utils/use-file-input";
 import { CollectionsSortOptions } from "ente-new/photos/components/CollectionsSortOptions";
 import { SlideUpTransition } from "ente-new/photos/components/mui/SlideUpTransition";
 import {
@@ -29,6 +30,7 @@ import { GalleryContext } from "pages/gallery";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { areEqual, FixedSizeList, ListChildComponentProps } from "react-window";
+import { renameCollection } from "services/collectionService";
 
 interface AllAlbums {
     open: boolean;
@@ -129,6 +131,7 @@ const Title = ({
             </FluidContainer>
             <Stack direction="row" sx={{ gap: 1.5 }}>
                 <BatchExportButton />
+                <BatchApplyButton />
                 <CollectionsSortOptions
                     activeSortBy={collectionsSortBy}
                     onChangeSortBy={onChangeCollectionsSortBy}
@@ -310,33 +313,79 @@ const BatchExportButton = ({}) => {
 
     const callback = async () => {
         const collections = await getAllLatestCollections();
-        let outputData = "id,old_name,new_name";
+        let outputData = [];
         for (const collection of collections) {
-            outputData += "\n";
-            outputData += collection.id;
-            outputData += ",";
-            // TODO: escape name
-            outputData += collection.name;
-            outputData += ",";
-            outputData += collection.name;
+            outputData.push({
+                id: collection.id,
+                old_name: collection.name,
+                new_name: collection.name,
+            })
         }
-        downloadString(outputData, "collections.csv");
-
-        // const collectionID = 1580559964003444;
-        // const newName = "Katrin Exit Game (Test 10)";
-        // for (const collection of collections) {
-        //     if (collection.id !== collectionID) {
-        //         continue;
-        //     }
-        //     console.log("before", collection);
-        //     await CollectionAPI.renameCollection(collection, newName);
-        //     console.log("after", collection);
-        // }
-        // await syncWithRemote(false, true);
-        // console.log("synced");
+        downloadString(JSON.stringify(outputData, null, 2), "collections.json");
     };
 
-    return (
-        <button onClick={callback}>Batch Export</button>
-    );
+    return <button onClick={callback}>Batch Export</button>;
+};
+
+const BatchApplyButton = ({}) => {
+    const { syncWithRemote } = useContext(GalleryContext);
+
+    const callback = async (files: File[]) => {
+        if (files.length !== 1) {
+            return;
+        }
+        const file = files[0];
+        const fileData = JSON.parse(await file.text());
+        if (!Array.isArray(fileData)) {
+            return;
+        }
+
+        const collections = await getAllLatestCollections();
+        const collectionsById = new Map(collections.map((c) => [c.id, c]));
+
+        let updateCount = 0;
+        for (const collectionData of fileData) {
+            const id = collectionData.id;
+            const oldName = collectionData.old_name;
+            const newName = collectionData.new_name;
+            if (typeof id !== "number" || typeof oldName !== "string" || typeof newName !== "string") {
+                return;
+            }
+            if (oldName === newName) {
+                continue;
+            }
+            const collection = collectionsById.get(id);
+            if (!collection) {
+                console.log(`Collection ${id} not found`);
+                continue;
+            }
+            if (collection.name === newName) {
+                console.log(`Collection ${id} already has name '${newName}'`);
+                continue;
+            }
+            if (collection.name !== oldName) {
+                console.log(`Collection ${id} has a different name already: '${collection.name}'`);
+                continue;
+            }
+            await renameCollection(collection, newName);
+            updateCount++;
+        }
+        await syncWithRemote(false, true);
+        console.log("Updated", updateCount, "collections");
+    };
+
+    const {
+        getInputProps,
+        openSelector,
+    } = useFileInput({
+        directory: false,
+        onSelect: callback,
+        onCancel: () => {},
+    });
+
+
+
+    return <>
+    <input {...getInputProps()} />
+    <button onClick={openSelector}>Batch Apply</button></>;
 };

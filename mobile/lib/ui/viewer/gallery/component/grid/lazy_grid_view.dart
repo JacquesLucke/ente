@@ -50,6 +50,7 @@ class _LazyGridViewState extends State<LazyGridView> {
     _shouldRender = widget.shouldRender;
     _currentUserID = Configuration.instance.getUserID();
     widget.selectedFiles?.addListener(_selectedFilesListener);
+    widget.includedFiles?.addListener(_includedFilesListener);
     _clearSelectionsEvent =
         Bus.instance.on<ClearSelectionsEvent>().listen((event) {
       if (mounted) {
@@ -111,6 +112,12 @@ class _LazyGridViewState extends State<LazyGridView> {
       }
     }
     if (shouldRefresh && mounted) {
+      setState(() {});
+    }
+  }
+
+  void _includedFilesListener() {
+    if (mounted) {
       setState(() {});
     }
   }

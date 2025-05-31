@@ -40,7 +40,9 @@ class GalleryFileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isFileSelected = selectedFiles?.isFileSelected(file) ?? false;
+    final isIncludedFileSelection = includedFiles != null;
+    final isFileSelected = !isIncludedFileSelection &&
+        (selectedFiles?.isFileSelected(file) ?? false);
     final isFileIncluded = includedFiles?.isIncluded(file) ?? false;
     bool fileIsFromSharedPublicLink = false;
     if (file.collectionID != null) {
@@ -71,9 +73,11 @@ class GalleryFileWidget extends StatelessWidget {
     );
     return GestureDetector(
       onTap: () {
-        limitSelectionToOne
-            ? _onTapWithSelectionLimit(file)
-            : _onTapNoSelectionLimit(context, file);
+        isIncludedFileSelection
+            ? _onTapWithIncludedFilesSelection(file)
+            : (limitSelectionToOne
+                ? _onTapWithSelectionLimit(file)
+                : _onTapNoSelectionLimit(context, file));
       },
       onLongPress: () {
         limitSelectionToOne
@@ -138,6 +142,10 @@ class GalleryFileWidget extends StatelessWidget {
 
   void _toggleFileSelection(EnteFile file) {
     selectedFiles!.toggleSelection(file);
+  }
+
+  void _onTapWithIncludedFilesSelection(EnteFile file) {
+    includedFiles!.toggle(file);
   }
 
   void _onTapWithSelectionLimit(EnteFile file) {

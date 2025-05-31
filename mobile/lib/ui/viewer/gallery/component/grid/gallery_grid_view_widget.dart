@@ -1,6 +1,7 @@
 import "package:flutter/widgets.dart";
 import "package:photos/core/constants.dart";
 import 'package:photos/models/file/file.dart';
+import "package:photos/models/included_files.dart";
 import "package:photos/models/selected_files.dart";
 import "package:photos/ui/viewer/gallery/component/gallery_file_widget.dart";
 import "package:photos/ui/viewer/gallery/gallery.dart";
@@ -9,6 +10,7 @@ class GalleryGridViewWidget extends StatelessWidget {
   final List<EnteFile> filesInGroup;
   final int photoGridSize;
   final SelectedFiles? selectedFiles;
+  final IncludedFiles? includedFiles;
   final bool limitSelectionToOne;
   final String tag;
   final int? currentUserID;
@@ -17,6 +19,7 @@ class GalleryGridViewWidget extends StatelessWidget {
     required this.filesInGroup,
     required this.photoGridSize,
     this.selectedFiles,
+    this.includedFiles,
     required this.limitSelectionToOne,
     required this.tag,
     super.key,
@@ -34,6 +37,7 @@ class GalleryGridViewWidget extends StatelessWidget {
         return GalleryFileWidget(
           file: filesInGroup[index],
           selectedFiles: selectedFiles,
+          includedFiles: includedFiles,
           limitSelectionToOne: limitSelectionToOne,
           tag: tag,
           photoGridSize: photoGridSize,

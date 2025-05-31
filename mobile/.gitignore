@@ -8,6 +8,8 @@
 .buildlog/
 .history
 .svn/
+.fvm
+.fvmrc
 
 # Editors
 .vscode/

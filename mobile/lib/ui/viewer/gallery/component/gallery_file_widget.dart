@@ -4,6 +4,7 @@ import "package:media_extension/media_extension.dart";
 import "package:media_extension/media_extension_action_types.dart";
 import "package:photos/core/constants.dart";
 import 'package:photos/models/file/file.dart';
+import "package:photos/models/included_files.dart";
 import "package:photos/models/selected_files.dart";
 import "package:photos/services/app_lifecycle_service.dart";
 import "package:photos/services/collections_service.dart";
@@ -19,6 +20,7 @@ import "package:photos/utils/navigation_util.dart";
 class GalleryFileWidget extends StatelessWidget {
   final EnteFile file;
   final SelectedFiles? selectedFiles;
+  final IncludedFiles? includedFiles;
   final bool limitSelectionToOne;
   final String tag;
   final int photoGridSize;
@@ -27,6 +29,7 @@ class GalleryFileWidget extends StatelessWidget {
   const GalleryFileWidget({
     required this.file,
     required this.selectedFiles,
+    required this.includedFiles,
     required this.limitSelectionToOne,
     required this.tag,
     required this.photoGridSize,
@@ -38,6 +41,7 @@ class GalleryFileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isFileSelected = selectedFiles?.isFileSelected(file) ?? false;
+    final isFileIncluded = includedFiles?.isIncluded(file) ?? false;
     bool fileIsFromSharedPublicLink = false;
     if (file.collectionID != null) {
       fileIsFromSharedPublicLink =
@@ -113,6 +117,17 @@ class GalleryFileWidget extends StatelessWidget {
                     Icons.check_circle_rounded,
                     size: 20,
                     color: selectionColor, //same for both themes
+                  ),
+                )
+              : const SizedBox.shrink(),
+          isFileIncluded
+              ? const Positioned(
+                  right: 4,
+                  bottom: 4,
+                  child: Icon(
+                    Icons.check_box_sharp,
+                    size: 20,
+                    color: Colors.indigo,
                   ),
                 )
               : const SizedBox.shrink(),

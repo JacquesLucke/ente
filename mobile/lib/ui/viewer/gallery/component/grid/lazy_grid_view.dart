@@ -6,6 +6,7 @@ import "package:photos/core/configuration.dart";
 import "package:photos/core/event_bus.dart";
 import "package:photos/events/clear_selections_event.dart";
 import 'package:photos/models/file/file.dart';
+import "package:photos/models/included_files.dart";
 import "package:photos/models/selected_files.dart";
 import "package:photos/ui/viewer/gallery/component/grid/non_recyclable_grid_view_widget.dart";
 import "package:photos/ui/viewer/gallery/component/grid/recyclable_grid_view_widget.dart";
@@ -16,6 +17,7 @@ class LazyGridView extends StatefulWidget {
   final List<EnteFile> filesInGroup;
   final GalleryLoader asyncLoader;
   final SelectedFiles? selectedFiles;
+  final IncludedFiles? includedFiles;
   final bool shouldRender;
   final bool shouldRecycle;
   final int? photoGridSize;
@@ -26,6 +28,7 @@ class LazyGridView extends StatefulWidget {
     this.filesInGroup,
     this.asyncLoader,
     this.selectedFiles,
+    this.includedFiles,
     this.shouldRender,
     this.shouldRecycle,
     this.photoGridSize, {
@@ -94,6 +97,7 @@ class _LazyGridViewState extends State<LazyGridView> {
         tag: widget.tag,
         asyncLoader: widget.asyncLoader,
         selectedFiles: widget.selectedFiles,
+        includedFiles: widget.includedFiles,
         currentUserID: _currentUserID,
       );
     }

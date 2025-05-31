@@ -9,6 +9,7 @@ import 'package:photos/models/collection/collection_items.dart';
 import 'package:photos/models/file/file.dart';
 import 'package:photos/models/file_load_result.dart';
 import 'package:photos/models/gallery_type.dart';
+import "package:photos/models/included_files.dart";
 import "package:photos/models/search/hierarchical/album_filter.dart";
 import "package:photos/models/search/hierarchical/hierarchical_search_filter.dart";
 import 'package:photos/models/selected_files.dart';
@@ -40,6 +41,7 @@ class CollectionPage extends StatelessWidget {
   });
 
   final _selectedFiles = SelectedFiles();
+  final _includedFiles = IncludedFiles();
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +92,7 @@ class CollectionPage extends StatelessWidget {
       },
       tagPrefix: tagPrefix,
       selectedFiles: _selectedFiles,
+      includedFiles: _includedFiles,
       initialFiles: initialFiles,
       albumName: c.collection.displayName,
       sortAsyncFn: () => c.collection.pubMagicMetadata.asc ?? false,

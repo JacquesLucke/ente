@@ -10,6 +10,7 @@ import 'package:photos/events/files_updated_event.dart';
 import 'package:photos/events/tab_changed_event.dart';
 import 'package:photos/models/file/file.dart';
 import 'package:photos/models/file_load_result.dart';
+import "package:photos/models/included_files.dart";
 import 'package:photos/models/selected_files.dart';
 import 'package:photos/ui/common/loading_widget.dart';
 import "package:photos/ui/viewer/gallery/component/group/type.dart";
@@ -39,6 +40,7 @@ class Gallery extends StatefulWidget {
   final List<Stream<Event>>? forceReloadEvents;
   final Set<EventType> removalEventTypes;
   final SelectedFiles? selectedFiles;
+  final IncludedFiles? includedFiles;
   final String tagPrefix;
   final Widget? header;
   final Widget? footer;
@@ -71,6 +73,7 @@ class Gallery extends StatefulWidget {
     required this.asyncLoader,
     required this.tagPrefix,
     this.selectedFiles,
+    this.includedFiles,
     this.initialFiles,
     this.reloadEvent,
     this.forceReloadEvents,
@@ -397,6 +400,7 @@ class GalleryState extends State<Gallery> {
         header: widget.header,
         footer: widget.footer,
         selectedFiles: widget.selectedFiles,
+        includedFiles: widget.includedFiles,
         showSelectAllByDefault:
             widget.showSelectAllByDefault && widget.groupType.showGroupHeader(),
         isScrollablePositionedList: widget.isScrollablePositionedList,

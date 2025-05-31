@@ -74,7 +74,7 @@ class GalleryFileWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         isIncludedFileSelection
-            ? _onTapWithIncludedFilesSelection(file)
+            ? _onTapWithIncludedFilesSelection(context, file)
             : (limitSelectionToOne
                 ? _onTapWithSelectionLimit(file)
                 : _onTapNoSelectionLimit(context, file));
@@ -144,8 +144,8 @@ class GalleryFileWidget extends StatelessWidget {
     selectedFiles!.toggleSelection(file);
   }
 
-  void _onTapWithIncludedFilesSelection(EnteFile file) {
-    includedFiles!.toggle(file);
+  void _onTapWithIncludedFilesSelection(BuildContext context, EnteFile file) {
+    includedFiles!.toggle(context, file);
   }
 
   void _onTapWithSelectionLimit(EnteFile file) {

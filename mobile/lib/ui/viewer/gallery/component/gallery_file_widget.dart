@@ -40,9 +40,7 @@ class GalleryFileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isIncludedFileSelection = includedFiles != null;
-    final isFileSelected = !isIncludedFileSelection &&
-        (selectedFiles?.isFileSelected(file) ?? false);
+    final isFileSelected = (selectedFiles?.isFileSelected(file) ?? false);
     final isFileIncluded = includedFiles?.isIncluded(file) ?? false;
     bool fileIsFromSharedPublicLink = false;
     if (file.collectionID != null) {
@@ -131,9 +129,11 @@ class GalleryFileWidget extends StatelessWidget {
                       _onTapWithIncludedFilesSelection(context, file);
                     },
                     child: Icon(
-                      Icons.check_box_sharp,
+                      isFileIncluded
+                          ? Icons.check_box_sharp
+                          : Icons.check_box_outline_blank,
                       size: 20,
-                      color: isFileIncluded ? Colors.indigo : Colors.white,
+                      color: Colors.white,
                     ),
                   ),
                 )

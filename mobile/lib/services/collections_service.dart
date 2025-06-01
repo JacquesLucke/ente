@@ -76,7 +76,7 @@ class CollectionsService {
   final _cachedPublicCollectionID = <int>[];
   final _cachedPublicAlbumKey = <int, String>{};
 
-  IncludedFiles? includedFiles;
+  IncludedFiles includedFiles = IncludedFiles();
 
   CollectionsService._privateConstructor() {
     _db = CollectionsDB.instance;

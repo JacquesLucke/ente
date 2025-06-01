@@ -37,9 +37,9 @@ class GalleryFileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isFileSelected = (selectedFiles?.isFileSelected(file) ?? false);
+    final isFileSelected = selectedFiles?.isFileSelected(file) ?? false;
     final includedFiles = CollectionsService.instance.includedFiles;
-    final isFileIncluded = includedFiles?.isIncluded(file) ?? false;
+    final isFileIncluded = includedFiles.isIncluded(file);
     bool fileIsFromSharedPublicLink = false;
     if (file.collectionID != null) {
       fileIsFromSharedPublicLink =
@@ -118,7 +118,7 @@ class GalleryFileWidget extends StatelessWidget {
                   ),
                 )
               : const SizedBox.shrink(),
-          includedFiles != null
+          includedFiles.isEnabled()
               ? Positioned(
                   right: 4,
                   bottom: 4,
@@ -146,7 +146,7 @@ class GalleryFileWidget extends StatelessWidget {
   }
 
   void _onTapWithIncludedFilesSelection(BuildContext context, EnteFile file) {
-    CollectionsService.instance.includedFiles?.toggle(context, file);
+    CollectionsService.instance.includedFiles.toggle(context, file);
   }
 
   void _onTapWithSelectionLimit(EnteFile file) {

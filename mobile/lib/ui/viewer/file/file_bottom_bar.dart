@@ -57,7 +57,7 @@ class FileBottomBarState extends State<FileBottomBar> {
         isGuestView = event.isGuestView;
       });
     });
-    CollectionsService.instance.includedFiles?.addListener(() {
+    CollectionsService.instance.includedFiles.addListener(() {
       safeRefresh();
     });
   }
@@ -136,7 +136,7 @@ class FileBottomBarState extends State<FileBottomBar> {
         );
       }
       final includedFiles = CollectionsService.instance.includedFiles;
-      if (includedFiles != null) {
+      if (includedFiles.isEnabled()) {
         children.add(
           Tooltip(
             message: S.of(context).includeInCollection,

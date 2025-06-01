@@ -7,31 +7,46 @@ import "package:photos/ui/actions/collection/collection_sharing_actions.dart";
 
 class IncludedFiles extends ChangeNotifier {
   final files = <String>{};
-  Collection referenceCollection;
+  Collection? referenceCollection;
 
-  IncludedFiles(this.referenceCollection) {
-    FilesDB.instance
-        .getAllFilesCollection(referenceCollection.id)
-        .then((initialFiles) {
-      files.addAll(initialFiles.map((e) => e.displayName));
-      notifyListeners();
-    });
+  IncludedFiles();
+
+  void setReferenceCollection(Collection? newReferenceCollection) {
+    files.clear();
+    referenceCollection = newReferenceCollection;
+    notifyListeners();
+    if (newReferenceCollection != null) {
+      FilesDB.instance
+          .getAllFilesCollection(newReferenceCollection.id)
+          .then((initialFiles) {
+        files.addAll(initialFiles.map((e) => e.displayName));
+        notifyListeners();
+      });
+    }
+  }
+
+  bool isEnabled() {
+    return referenceCollection != null;
   }
 
   void toggle(BuildContext context, EnteFile fileToToggle) async {
+    if (referenceCollection == null) {
+      return;
+    }
+    final collection = referenceCollection!;
     final wasIncluded = isIncluded(fileToToggle);
     if (wasIncluded) {
       files.remove(fileToToggle.displayName);
       notifyListeners();
       try {
         final otherFiles = await CollectionsService.instance.filesDB
-            .getAllFilesCollection(referenceCollection.id);
+            .getAllFilesCollection(collection.id);
         for (final otherFile in otherFiles) {
           if (otherFile.displayName == fileToToggle.displayName) {
             await CollectionActions(CollectionsService.instance)
                 .moveFilesFromCurrentCollection(
               context,
-              referenceCollection,
+              collection,
               [otherFile],
             );
           }
@@ -46,7 +61,7 @@ class IncludedFiles extends ChangeNotifier {
       notifyListeners();
       try {
         await CollectionsService.instance
-            .addOrCopyToCollection(referenceCollection.id, [fileToToggle]);
+            .addOrCopyToCollection(collection.id, [fileToToggle]);
       } catch (e) {
         files.remove(fileToToggle.displayName);
         notifyListeners();

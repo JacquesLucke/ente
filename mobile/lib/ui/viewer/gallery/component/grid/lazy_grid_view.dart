@@ -49,7 +49,7 @@ class _LazyGridViewState extends State<LazyGridView> {
     _currentUserID = Configuration.instance.getUserID();
     widget.selectedFiles?.addListener(_selectedFilesListener);
     CollectionsService.instance.includedFiles
-        ?.addListener(_includedFilesListener);
+        .addListener(_includedFilesListener);
     _clearSelectionsEvent =
         Bus.instance.on<ClearSelectionsEvent>().listen((event) {
       if (mounted) {

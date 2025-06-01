@@ -5,7 +5,6 @@ import "package:photos/core/event_bus.dart";
 import "package:photos/ente_theme_data.dart";
 import "package:photos/events/files_updated_event.dart";
 import 'package:photos/models/file/file.dart';
-import "package:photos/models/included_files.dart";
 import "package:photos/models/selected_files.dart";
 import "package:photos/service_locator.dart";
 import "package:photos/ui/common/loading_widget.dart";
@@ -39,7 +38,6 @@ class MultipleGroupsGalleryView extends StatelessWidget {
   final double scrollBottomSafeArea;
   final bool limitSelectionToOne;
   final SelectedFiles? selectedFiles;
-  final IncludedFiles? includedFiles;
   final bool enableFileGrouping;
   final String logTag;
   final Logger logger;
@@ -60,7 +58,6 @@ class MultipleGroupsGalleryView extends StatelessWidget {
     required this.scrollBottomSafeArea,
     required this.limitSelectionToOne,
     this.selectedFiles,
-    this.includedFiles,
     required this.enableFileGrouping,
     required this.logTag,
     required this.logger,
@@ -109,7 +106,6 @@ class MultipleGroupsGalleryView extends StatelessWidget {
           removalEventTypes,
           asyncLoader,
           selectedFiles,
-          includedFiles,
           tagPrefix,
           Bus.instance
               .on<GalleryIndexUpdatedEvent>()

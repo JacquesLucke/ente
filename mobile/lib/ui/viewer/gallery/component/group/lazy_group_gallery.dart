@@ -6,7 +6,6 @@ import 'package:logging/logging.dart';
 import 'package:photos/core/constants.dart';
 import 'package:photos/events/files_updated_event.dart';
 import 'package:photos/models/file/file.dart';
-import "package:photos/models/included_files.dart";
 import 'package:photos/models/selected_files.dart';
 import 'package:photos/theme/ente_theme.dart';
 import "package:photos/ui/viewer/gallery/component/grid/place_holder_grid_view_widget.dart";
@@ -23,7 +22,6 @@ class LazyGroupGallery extends StatefulWidget {
   final Set<EventType> removalEventTypes;
   final GalleryLoader asyncLoader;
   final SelectedFiles? selectedFiles;
-  final IncludedFiles? includedFiles;
   final String tag;
   final String? logTag;
   final Stream<int> currentIndexStream;
@@ -38,7 +36,6 @@ class LazyGroupGallery extends StatefulWidget {
     this.removalEventTypes,
     this.asyncLoader,
     this.selectedFiles,
-    this.includedFiles,
     this.tag,
     this.currentIndexStream,
     this.enableFileGrouping,
@@ -243,7 +240,6 @@ class _LazyGroupGalleryState extends State<LazyGroupGallery> {
                 tag: widget.tag,
                 asyncLoader: widget.asyncLoader,
                 selectedFiles: widget.selectedFiles,
-                includedFiles: widget.includedFiles,
                 limitSelectionToOne: widget.limitSelectionToOne,
               )
             // todo: perf eval should we have separate PlaceHolder for Groups

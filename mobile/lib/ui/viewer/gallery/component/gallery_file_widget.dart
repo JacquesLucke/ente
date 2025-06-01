@@ -4,7 +4,6 @@ import "package:media_extension/media_extension.dart";
 import "package:media_extension/media_extension_action_types.dart";
 import "package:photos/core/constants.dart";
 import 'package:photos/models/file/file.dart';
-import "package:photos/models/included_files.dart";
 import "package:photos/models/selected_files.dart";
 import "package:photos/services/app_lifecycle_service.dart";
 import "package:photos/services/collections_service.dart";
@@ -20,7 +19,6 @@ import "package:photos/utils/navigation_util.dart";
 class GalleryFileWidget extends StatelessWidget {
   final EnteFile file;
   final SelectedFiles? selectedFiles;
-  final IncludedFiles? includedFiles;
   final bool limitSelectionToOne;
   final String tag;
   final int photoGridSize;
@@ -29,7 +27,6 @@ class GalleryFileWidget extends StatelessWidget {
   const GalleryFileWidget({
     required this.file,
     required this.selectedFiles,
-    required this.includedFiles,
     required this.limitSelectionToOne,
     required this.tag,
     required this.photoGridSize,
@@ -41,6 +38,7 @@ class GalleryFileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isFileSelected = (selectedFiles?.isFileSelected(file) ?? false);
+    final includedFiles = CollectionsService.instance.includedFiles;
     final isFileIncluded = includedFiles?.isIncluded(file) ?? false;
     bool fileIsFromSharedPublicLink = false;
     if (file.collectionID != null) {
@@ -148,7 +146,7 @@ class GalleryFileWidget extends StatelessWidget {
   }
 
   void _onTapWithIncludedFilesSelection(BuildContext context, EnteFile file) {
-    includedFiles!.toggle(context, file);
+    CollectionsService.instance.includedFiles?.toggle(context, file);
   }
 
   void _onTapWithSelectionLimit(EnteFile file) {
@@ -204,7 +202,6 @@ class GalleryFileWidget extends StatelessWidget {
         galleryFiles,
         galleryFiles.indexOf(file),
         tag,
-        includedFiles: includedFiles,
       ),
     );
     routeToPage(context, page, forceCustomPageRoute: true);

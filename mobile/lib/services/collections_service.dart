@@ -34,6 +34,7 @@ import 'package:photos/models/collection/collection.dart';
 import 'package:photos/models/collection/collection_items.dart';
 import 'package:photos/models/file/file.dart';
 import "package:photos/models/files_split.dart";
+import "package:photos/models/included_files.dart";
 import "package:photos/models/metadata/collection_magic.dart";
 import "package:photos/service_locator.dart";
 import 'package:photos/services/app_lifecycle_service.dart';
@@ -74,6 +75,8 @@ class CollectionsService {
   final _cachedPublicAlbumJWT = <int, String>{};
   final _cachedPublicCollectionID = <int>[];
   final _cachedPublicAlbumKey = <int, String>{};
+
+  IncludedFiles? includedFiles;
 
   CollectionsService._privateConstructor() {
     _db = CollectionsDB.instance;

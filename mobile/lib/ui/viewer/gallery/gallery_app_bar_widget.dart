@@ -22,6 +22,7 @@ import 'package:photos/models/collection/collection.dart';
 import 'package:photos/models/device_collection.dart';
 import "package:photos/models/file/file.dart";
 import 'package:photos/models/gallery_type.dart';
+import "package:photos/models/included_files.dart";
 import "package:photos/models/metadata/common_keys.dart";
 import 'package:photos/models/selected_files.dart';
 import 'package:photos/service_locator.dart';
@@ -487,7 +488,7 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
                 ),
         ),
       if (galleryType == GalleryType.ownedCollection)
-        if (widget.collection?.attributes.isIncludeReference == true)
+        if (CollectionsService.instance.includedFiles != null)
           EntePopupMenuItem(
             "Remove Reference",
             value: AlbumPopupAction.removeIncludeReference,
@@ -706,19 +707,16 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
   }
 
   void _onAsIncludeReference(BuildContext context) {
-    for (final otherCollection
-        in CollectionsService.instance.getActiveCollections()) {
-      otherCollection.attributes.isIncludeReference = null;
+    if (widget.collection == null) {
+      return;
     }
-    widget.collection?.attributes.isIncludeReference = true;
+    CollectionsService.instance.includedFiles =
+        IncludedFiles(widget.collection!);
     setState(() {});
   }
 
   void _onRemoveIncludeReference(BuildContext context) {
-    for (final otherCollection
-        in CollectionsService.instance.getActiveCollections()) {
-      otherCollection.attributes.isIncludeReference = null;
-    }
+    CollectionsService.instance.includedFiles = null;
     setState(() {});
   }
 

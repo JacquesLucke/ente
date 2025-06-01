@@ -11,8 +11,8 @@ import "package:photos/models/file/extensions/file_props.dart";
 import 'package:photos/models/file/file.dart';
 import 'package:photos/models/file/file_type.dart';
 import 'package:photos/models/file/trash_file.dart';
-import "package:photos/models/included_files.dart";
 import 'package:photos/models/selected_files.dart';
+import "package:photos/services/collections_service.dart";
 
 import "package:photos/ui/actions/file/file_actions.dart";
 import 'package:photos/ui/collections/collection_action_sheet.dart';
@@ -27,7 +27,6 @@ class FileBottomBar extends StatefulWidget {
   final bool showOnlyInfoButton;
   final int? userID;
   final ValueNotifier<bool> enableFullScreenNotifier;
-  final IncludedFiles? includedFiles;
 
   const FileBottomBar(
     this.file,
@@ -35,7 +34,6 @@ class FileBottomBar extends StatefulWidget {
     this.showOnlyInfoButton, {
     required this.onFileRemoved,
     required this.enableFullScreenNotifier,
-    this.includedFiles,
     this.userID,
     super.key,
   });
@@ -59,7 +57,7 @@ class FileBottomBarState extends State<FileBottomBar> {
         isGuestView = event.isGuestView;
       });
     });
-    widget.includedFiles?.addListener(() {
+    CollectionsService.instance.includedFiles?.addListener(() {
       safeRefresh();
     });
   }
@@ -137,7 +135,8 @@ class FileBottomBarState extends State<FileBottomBar> {
           ),
         );
       }
-      if (widget.includedFiles != null) {
+      final includedFiles = CollectionsService.instance.includedFiles;
+      if (includedFiles != null) {
         children.add(
           Tooltip(
             message: S.of(context).includeInCollection,
@@ -145,13 +144,13 @@ class FileBottomBarState extends State<FileBottomBar> {
               padding: const EdgeInsets.only(top: 12),
               child: IconButton(
                 icon: Icon(
-                  widget.includedFiles!.isIncluded(widget.file)
+                  includedFiles.isIncluded(widget.file)
                       ? Icons.check_box_outlined
                       : Icons.check_box_outline_blank,
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  widget.includedFiles!.toggle(context, widget.file);
+                  includedFiles.toggle(context, widget.file);
                 },
               ),
             ),

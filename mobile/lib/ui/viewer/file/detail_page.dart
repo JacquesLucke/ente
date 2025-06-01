@@ -14,7 +14,6 @@ import "package:photos/generated/l10n.dart";
 import "package:photos/models/file/extensions/file_props.dart";
 import 'package:photos/models/file/file.dart';
 import "package:photos/models/file/file_type.dart";
-import "package:photos/models/included_files.dart";
 import "package:photos/service_locator.dart";
 import "package:photos/services/local_authentication_service.dart";
 import "package:photos/states/detail_page_state.dart";
@@ -41,14 +40,12 @@ class DetailPageConfiguration {
   final List<EnteFile> files;
   final int selectedIndex;
   final String tagPrefix;
-  final IncludedFiles? includedFiles;
   final DetailPageMode mode;
 
   DetailPageConfiguration(
     this.files,
     this.selectedIndex,
     this.tagPrefix, {
-    this.includedFiles,
     this.mode = DetailPageMode.full,
   });
 
@@ -57,13 +54,11 @@ class DetailPageConfiguration {
     GalleryLoader? asyncLoader,
     int? selectedIndex,
     String? tagPrefix,
-    IncludedFiles? includedFiles,
   }) {
     return DetailPageConfiguration(
       files ?? this.files,
       selectedIndex ?? this.selectedIndex,
       tagPrefix ?? this.tagPrefix,
-      includedFiles: includedFiles,
     );
   }
 }
@@ -184,7 +179,6 @@ class _DetailPageState extends State<DetailPage> {
                       widget.config.mode == DetailPageMode.minimalistic &&
                           !isGuestView,
                       onFileRemoved: _onFileRemoved,
-                      includedFiles: widget.config.includedFiles,
                       userID: Configuration.instance.getUserID(),
                       enableFullScreenNotifier:
                           InheritedDetailPageState.of(context)

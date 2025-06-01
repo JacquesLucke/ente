@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:photos/core/constants.dart';
 import 'package:photos/models/file/file.dart';
-import "package:photos/models/included_files.dart";
 import 'package:photos/models/selected_files.dart';
 import "package:photos/ui/viewer/gallery/component/grid/lazy_grid_view.dart";
 import 'package:photos/ui/viewer/gallery/gallery.dart';
@@ -14,7 +13,6 @@ class GroupGallery extends StatelessWidget {
   final String tag;
   final GalleryLoader asyncLoader;
   final SelectedFiles? selectedFiles;
-  final IncludedFiles? includedFiles;
   final bool limitSelectionToOne;
 
   const GroupGallery({
@@ -23,7 +21,6 @@ class GroupGallery extends StatelessWidget {
     required this.tag,
     required this.asyncLoader,
     required this.selectedFiles,
-    required this.includedFiles,
     required this.limitSelectionToOne,
     super.key,
   });
@@ -44,7 +41,6 @@ class GroupGallery extends StatelessWidget {
           ),
           asyncLoader,
           selectedFiles,
-          includedFiles,
           index == 0,
           files.length > kRecycleLimit,
           photoGridSize,

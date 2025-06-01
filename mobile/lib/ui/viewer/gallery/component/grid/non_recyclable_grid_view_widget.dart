@@ -1,6 +1,5 @@
 import "package:flutter/material.dart";
 import 'package:photos/models/file/file.dart';
-import "package:photos/models/included_files.dart";
 import "package:photos/models/selected_files.dart";
 import "package:photos/ui/viewer/gallery/component/grid/gallery_grid_view_widget.dart";
 import "package:photos/ui/viewer/gallery/component/grid/place_holder_grid_view_widget.dart";
@@ -16,7 +15,6 @@ class NonRecyclableGridViewWidget extends StatefulWidget {
   final GalleryLoader asyncLoader;
   final int? currentUserID;
   final SelectedFiles? selectedFiles;
-  final IncludedFiles? includedFiles;
   const NonRecyclableGridViewWidget({
     required this.shouldRender,
     required this.filesInGroup,
@@ -26,7 +24,6 @@ class NonRecyclableGridViewWidget extends StatefulWidget {
     required this.asyncLoader,
     this.currentUserID,
     this.selectedFiles,
-    this.includedFiles,
     super.key,
   });
 
@@ -69,7 +66,6 @@ class _NonRecyclableGridViewWidgetState
         tag: widget.tag,
         asyncLoader: widget.asyncLoader,
         selectedFiles: widget.selectedFiles,
-        includedFiles: widget.includedFiles,
         currentUserID: widget.currentUserID,
       );
     }

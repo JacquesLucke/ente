@@ -9,11 +9,9 @@ import 'package:photos/models/collection/collection_items.dart';
 import 'package:photos/models/file/file.dart';
 import 'package:photos/models/file_load_result.dart';
 import 'package:photos/models/gallery_type.dart';
-import "package:photos/models/included_files.dart";
 import "package:photos/models/search/hierarchical/album_filter.dart";
 import "package:photos/models/search/hierarchical/hierarchical_search_filter.dart";
 import 'package:photos/models/selected_files.dart';
-import "package:photos/services/collections_service.dart";
 import 'package:photos/services/ignored_files_service.dart';
 import 'package:photos/ui/viewer/actions/file_selection_overlay_bar.dart';
 import "package:photos/ui/viewer/gallery/collect_photos_bottom_buttons.dart";
@@ -41,18 +39,7 @@ class CollectionPage extends StatelessWidget {
     super.key,
   });
 
-  static IncludedFiles? getIncludedFilesIfNecessary() {
-    for (final otherCollection
-        in CollectionsService.instance.getActiveCollections()) {
-      if (otherCollection.attributes.isIncludeReference == true) {
-        return IncludedFiles(otherCollection);
-      }
-    }
-    return null;
-  }
-
   final _selectedFiles = SelectedFiles();
-  final IncludedFiles? _includedFiles = getIncludedFilesIfNecessary();
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +90,6 @@ class CollectionPage extends StatelessWidget {
       },
       tagPrefix: tagPrefix,
       selectedFiles: _selectedFiles,
-      includedFiles: _includedFiles,
       initialFiles: initialFiles,
       albumName: c.collection.displayName,
       sortAsyncFn: () => c.collection.pubMagicMetadata.asc ?? false,

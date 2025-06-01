@@ -6,8 +6,10 @@ import "package:photos/services/collections_service.dart";
 import "package:photos/ui/actions/collection/collection_sharing_actions.dart";
 
 class IncludedFiles extends ChangeNotifier {
-  final files = <String>{};
   Collection? referenceCollection;
+  // TODO: Should probably use <EnteFile>, but I had some issues with getting
+  // that to work properly so far.
+  final files = <String>{};
 
   IncludedFiles();
 

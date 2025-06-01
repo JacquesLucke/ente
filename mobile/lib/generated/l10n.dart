@@ -7640,10 +7640,31 @@ class S {
     );
   }
 
+  /// `Include in collection`
   String get includeInCollection {
     return Intl.message(
       'Include in collection',
       name: 'includeInCollection',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear reference`
+  String get clearReferenceCollection {
+    return Intl.message(
+      'Clear reference',
+      name: 'includeInCollection',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Set reference`
+  String get setReferenceCollection {
+    return Intl.message(
+      'Set as reference',
+      name: 'setReferenceCollection',
       desc: '',
       args: [],
     );

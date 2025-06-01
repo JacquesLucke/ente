@@ -489,13 +489,13 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
       if (galleryType == GalleryType.ownedCollection)
         if (CollectionsService.instance.includedFiles.isEnabled())
           EntePopupMenuItem(
-            "Remove Reference",
+            S.of(context).clearReferenceCollection,
             value: AlbumPopupAction.removeIncludeReference,
             iconWidget: const Icon(Icons.link_off),
           )
         else
           EntePopupMenuItem(
-            "As Reference",
+            S.of(context).setReferenceCollection,
             value: AlbumPopupAction.asIncludeReference,
             iconWidget: const Icon(Icons.link),
           ),

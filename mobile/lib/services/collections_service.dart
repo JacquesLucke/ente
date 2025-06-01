@@ -76,6 +76,8 @@ class CollectionsService {
   final _cachedPublicCollectionID = <int>[];
   final _cachedPublicAlbumKey = <int, String>{};
 
+  // Keeps track of an optional reference collection where files added
+  // to or removed from in various locations.
   IncludedFiles includedFiles = IncludedFiles();
 
   CollectionsService._privateConstructor() {

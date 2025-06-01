@@ -1,4 +1,5 @@
 import "package:flutter/widgets.dart";
+import "package:photos/db/files_db.dart";
 import 'package:photos/models/collection/collection.dart';
 import 'package:photos/models/file/file.dart';
 import "package:photos/services/collections_service.dart";
@@ -15,6 +16,12 @@ class IncludedFiles extends ChangeNotifier {
         referenceCollection = collection;
       }
     }
+    FilesDB.instance
+        .getAllFilesCollection(referenceCollection!.id)
+        .then((initialFiles) {
+      files.addAll(initialFiles.map((e) => e.displayName));
+      notifyListeners();
+    });
   }
 
   void toggle(BuildContext context, EnteFile fileToToggle) async {

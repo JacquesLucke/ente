@@ -1909,15 +1909,10 @@ class CollectionsService {
       for (final file in batch) {
         params["fileIDs"].add(file.uploadedFileID);
       }
-      print(params);
-      print("before");
       final resp = await _enteDio.post(
         "/collections/v3/remove-files",
         data: params,
       );
-      print("after");
-      print(resp.statusCode);
-      print(resp.statusMessage);
       if (resp.statusCode != 200) {
         throw Exception("Failed to remove files from collection");
       }

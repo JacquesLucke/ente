@@ -102,6 +102,7 @@ enum AlbumPopupAction {
   sortByMostRelevant,
   editLocation,
   deleteLocation,
+  asIncludeReference,
 }
 
 class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
@@ -484,6 +485,12 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
                   child: const Icon(CupertinoIcons.pin),
                 ),
         ),
+      if (galleryType == GalleryType.ownedCollection)
+        EntePopupMenuItem(
+          "As Reference",
+          value: AlbumPopupAction.asIncludeReference,
+          iconWidget: const Icon(Icons.link),
+        ),
       if (galleryType == GalleryType.locationTag)
         EntePopupMenuItem(
           S.of(context).editLocation,
@@ -633,6 +640,8 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
               editLocation();
             } else if (value == AlbumPopupAction.deleteLocation) {
               await deleteLocation();
+            } else if (value == AlbumPopupAction.asIncludeReference) {
+              _onAsIncludeReference(context);
             } else {
               showToast(context, S.of(context).somethingWentWrong);
             }
@@ -684,6 +693,14 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
     } catch (e) {
       await showGenericErrorDialog(context: context, error: e);
     }
+  }
+
+  void _onAsIncludeReference(BuildContext context) {
+    for (final otherCollection
+        in CollectionsService.instance.getActiveCollections()) {
+      otherCollection.attributes.isIncludeReference = null;
+    }
+    widget.collection?.attributes.isIncludeReference = true;
   }
 
   Future<void> onCleanUncategorizedClick(BuildContext buildContext) async {

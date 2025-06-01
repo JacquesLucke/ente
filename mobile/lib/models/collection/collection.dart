@@ -340,11 +340,13 @@ class CollectionAttributes {
   final String? encryptedPath;
   final String? pathDecryptionNonce;
   final int? version;
+  bool? isIncludeReference;
 
   CollectionAttributes({
     this.encryptedPath,
     this.pathDecryptionNonce,
     this.version,
+    this.isIncludeReference,
   });
 
   Map<String, dynamic> toMap() {
@@ -356,6 +358,9 @@ class CollectionAttributes {
       map['pathDecryptionNonce'] = pathDecryptionNonce;
     }
     map['version'] = version ?? 0;
+    if (isIncludeReference != null) {
+      map['isIncludeReference'] = isIncludeReference;
+    }
     return map;
   }
 
@@ -366,6 +371,7 @@ class CollectionAttributes {
       encryptedPath: map['encryptedPath'],
       pathDecryptionNonce: map['pathDecryptionNonce'],
       version: map['version'] ?? 0,
+      isIncludeReference: map['isIncludeReference'],
     );
   }
 }

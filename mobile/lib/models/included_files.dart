@@ -7,17 +7,11 @@ import "package:photos/ui/actions/collection/collection_sharing_actions.dart";
 
 class IncludedFiles extends ChangeNotifier {
   final files = <String>{};
-  Collection? referenceCollection;
+  Collection referenceCollection;
 
-  IncludedFiles() {
-    final collections = CollectionsService.instance.getActiveCollections();
-    for (final collection in collections) {
-      if (collection.displayName == "Auswahl Test") {
-        referenceCollection = collection;
-      }
-    }
+  IncludedFiles(this.referenceCollection) {
     FilesDB.instance
-        .getAllFilesCollection(referenceCollection!.id)
+        .getAllFilesCollection(referenceCollection.id)
         .then((initialFiles) {
       files.addAll(initialFiles.map((e) => e.displayName));
       notifyListeners();
@@ -31,13 +25,13 @@ class IncludedFiles extends ChangeNotifier {
       notifyListeners();
       try {
         final otherFiles = await CollectionsService.instance.filesDB
-            .getAllFilesCollection(referenceCollection!.id);
+            .getAllFilesCollection(referenceCollection.id);
         for (final otherFile in otherFiles) {
           if (otherFile.displayName == fileToToggle.displayName) {
             await CollectionActions(CollectionsService.instance)
                 .moveFilesFromCurrentCollection(
               context,
-              referenceCollection!,
+              referenceCollection,
               [otherFile],
             );
           }
@@ -52,7 +46,7 @@ class IncludedFiles extends ChangeNotifier {
       notifyListeners();
       try {
         await CollectionsService.instance
-            .addOrCopyToCollection(referenceCollection!.id, [fileToToggle]);
+            .addOrCopyToCollection(referenceCollection.id, [fileToToggle]);
       } catch (e) {
         files.remove(fileToToggle.displayName);
         notifyListeners();

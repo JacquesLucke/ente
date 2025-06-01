@@ -13,6 +13,7 @@ import "package:photos/models/included_files.dart";
 import "package:photos/models/search/hierarchical/album_filter.dart";
 import "package:photos/models/search/hierarchical/hierarchical_search_filter.dart";
 import 'package:photos/models/selected_files.dart';
+import "package:photos/services/collections_service.dart";
 import 'package:photos/services/ignored_files_service.dart';
 import 'package:photos/ui/viewer/actions/file_selection_overlay_bar.dart';
 import "package:photos/ui/viewer/gallery/collect_photos_bottom_buttons.dart";
@@ -40,8 +41,18 @@ class CollectionPage extends StatelessWidget {
     super.key,
   });
 
+  static IncludedFiles? getIncludedFilesIfNecessary() {
+    for (final otherCollection
+        in CollectionsService.instance.getActiveCollections()) {
+      if (otherCollection.attributes.isIncludeReference == true) {
+        return IncludedFiles(otherCollection);
+      }
+    }
+    return null;
+  }
+
   final _selectedFiles = SelectedFiles();
-  final _includedFiles = IncludedFiles();
+  final IncludedFiles? _includedFiles = getIncludedFilesIfNecessary();
 
   @override
   Widget build(BuildContext context) {

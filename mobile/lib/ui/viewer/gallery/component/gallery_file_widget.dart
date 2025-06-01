@@ -118,7 +118,7 @@ class GalleryFileWidget extends StatelessWidget {
                   ),
                 )
               : const SizedBox.shrink(),
-          includedFiles.isEnabled()
+          includedFiles.isEnabled
               ? Positioned(
                   right: 4,
                   bottom: 4,

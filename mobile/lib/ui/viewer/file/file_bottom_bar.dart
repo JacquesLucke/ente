@@ -136,7 +136,7 @@ class FileBottomBarState extends State<FileBottomBar> {
         );
       }
       final includedFiles = CollectionsService.instance.includedFiles;
-      if (includedFiles.isEnabled()) {
+      if (includedFiles.isEnabled) {
         children.add(
           Tooltip(
             message: S.of(context).includeInCollection,

@@ -27,7 +27,7 @@ class IncludedFiles extends ChangeNotifier {
     }
   }
 
-  bool isEnabled() {
+  get isEnabled {
     return referenceCollection != null;
   }
 

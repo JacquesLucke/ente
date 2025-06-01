@@ -487,7 +487,7 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
                 ),
         ),
       if (galleryType == GalleryType.ownedCollection)
-        if (CollectionsService.instance.includedFiles.isEnabled())
+        if (CollectionsService.instance.includedFiles.isEnabled)
           EntePopupMenuItem(
             S.of(context).clearReferenceCollection,
             value: AlbumPopupAction.removeIncludeReference,

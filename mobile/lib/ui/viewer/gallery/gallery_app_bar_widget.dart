@@ -103,6 +103,7 @@ enum AlbumPopupAction {
   editLocation,
   deleteLocation,
   asIncludeReference,
+  removeIncludeReference,
 }
 
 class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
@@ -486,11 +487,18 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
                 ),
         ),
       if (galleryType == GalleryType.ownedCollection)
-        EntePopupMenuItem(
-          "As Reference",
-          value: AlbumPopupAction.asIncludeReference,
-          iconWidget: const Icon(Icons.link),
-        ),
+        if (widget.collection?.attributes.isIncludeReference == true)
+          EntePopupMenuItem(
+            "Remove Reference",
+            value: AlbumPopupAction.removeIncludeReference,
+            iconWidget: const Icon(Icons.link_off),
+          )
+        else
+          EntePopupMenuItem(
+            "As Reference",
+            value: AlbumPopupAction.asIncludeReference,
+            iconWidget: const Icon(Icons.link),
+          ),
       if (galleryType == GalleryType.locationTag)
         EntePopupMenuItem(
           S.of(context).editLocation,
@@ -642,6 +650,8 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
               await deleteLocation();
             } else if (value == AlbumPopupAction.asIncludeReference) {
               _onAsIncludeReference(context);
+            } else if (value == AlbumPopupAction.removeIncludeReference) {
+              _onRemoveIncludeReference(context);
             } else {
               showToast(context, S.of(context).somethingWentWrong);
             }
@@ -701,6 +711,15 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
       otherCollection.attributes.isIncludeReference = null;
     }
     widget.collection?.attributes.isIncludeReference = true;
+    setState(() {});
+  }
+
+  void _onRemoveIncludeReference(BuildContext context) {
+    for (final otherCollection
+        in CollectionsService.instance.getActiveCollections()) {
+      otherCollection.attributes.isIncludeReference = null;
+    }
+    setState(() {});
   }
 
   Future<void> onCleanUncategorizedClick(BuildContext buildContext) async {

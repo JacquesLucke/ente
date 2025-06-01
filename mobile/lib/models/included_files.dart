@@ -1,10 +1,7 @@
 import "package:flutter/widgets.dart";
-// import "package:photos/db/files_db.dart";
 import 'package:photos/models/collection/collection.dart';
 import 'package:photos/models/file/file.dart';
-// import "package:photos/models/file_load_result.dart";
 import "package:photos/services/collections_service.dart";
-import "package:photos/services/sync/remote_sync_service.dart";
 import "package:photos/ui/actions/collection/collection_sharing_actions.dart";
 
 class IncludedFiles extends ChangeNotifier {
@@ -21,29 +18,40 @@ class IncludedFiles extends ChangeNotifier {
   }
 
   void toggle(BuildContext context, EnteFile fileToToggle) async {
-    if (files.contains(fileToToggle.displayName)) {
-      final otherFiles = await CollectionsService.instance.filesDB
-          .getAllFilesCollection(referenceCollection!.id);
-      for (final otherFile in otherFiles) {
-        if (otherFile.displayName == fileToToggle.displayName) {
-          await CollectionActions(CollectionsService.instance)
-              .moveFilesFromCurrentCollection(
-            context,
-            referenceCollection!,
-            [otherFile],
-          );
-        }
-      }
+    final wasIncluded = isIncluded(fileToToggle);
+    if (wasIncluded) {
       files.remove(fileToToggle.displayName);
+      notifyListeners();
+      try {
+        final otherFiles = await CollectionsService.instance.filesDB
+            .getAllFilesCollection(referenceCollection!.id);
+        for (final otherFile in otherFiles) {
+          if (otherFile.displayName == fileToToggle.displayName) {
+            await CollectionActions(CollectionsService.instance)
+                .moveFilesFromCurrentCollection(
+              context,
+              referenceCollection!,
+              [otherFile],
+            );
+          }
+        }
+      } catch (e) {
+        files.add(fileToToggle.displayName);
+        notifyListeners();
+        rethrow;
+      }
     } else {
       files.add(fileToToggle.displayName);
-      if (referenceCollection != null) {
+      notifyListeners();
+      try {
         await CollectionsService.instance
             .addOrCopyToCollection(referenceCollection!.id, [fileToToggle]);
+      } catch (e) {
+        files.remove(fileToToggle.displayName);
+        notifyListeners();
+        rethrow;
       }
     }
-    await RemoteSyncService.instance.sync(silently: true);
-    notifyListeners();
   }
 
   bool isIncluded(EnteFile file) {

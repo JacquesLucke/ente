@@ -1389,6 +1389,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "onEnte": MessageLookupByLibrary.simpleMessage(
             "<branding>ente</branding> üzerinde"),
         "onTheRoad": MessageLookupByLibrary.simpleMessage("Yeniden yollarda"),
+        "onThisDay": MessageLookupByLibrary.simpleMessage("On this day"),
         "onlyFamilyAdminCanChangeCode": m54,
         "onlyThem": MessageLookupByLibrary.simpleMessage("Sadece onlar"),
         "oops": MessageLookupByLibrary.simpleMessage("Hay aksi"),

@@ -204,6 +204,7 @@ class GalleryFileWidget extends StatelessWidget {
         galleryFiles,
         galleryFiles.indexOf(file),
         tag,
+        includedFiles: includedFiles,
       ),
     );
     routeToPage(context, page, forceCustomPageRoute: true);

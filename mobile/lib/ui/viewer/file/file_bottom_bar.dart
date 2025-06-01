@@ -11,6 +11,7 @@ import "package:photos/models/file/extensions/file_props.dart";
 import 'package:photos/models/file/file.dart';
 import 'package:photos/models/file/file_type.dart';
 import 'package:photos/models/file/trash_file.dart';
+import "package:photos/models/included_files.dart";
 import 'package:photos/models/selected_files.dart';
 
 import "package:photos/ui/actions/file/file_actions.dart";
@@ -26,6 +27,7 @@ class FileBottomBar extends StatefulWidget {
   final bool showOnlyInfoButton;
   final int? userID;
   final ValueNotifier<bool> enableFullScreenNotifier;
+  final IncludedFiles? includedFiles;
 
   const FileBottomBar(
     this.file,
@@ -33,6 +35,7 @@ class FileBottomBar extends StatefulWidget {
     this.showOnlyInfoButton, {
     required this.onFileRemoved,
     required this.enableFullScreenNotifier,
+    this.includedFiles,
     this.userID,
     super.key,
   });
@@ -55,6 +58,9 @@ class FileBottomBarState extends State<FileBottomBar> {
       setState(() {
         isGuestView = event.isGuestView;
       });
+    });
+    widget.includedFiles?.addListener(() {
+      safeRefresh();
     });
   }
 
@@ -125,6 +131,27 @@ class FileBottomBarState extends State<FileBottomBar> {
                 ),
                 onPressed: () {
                   widget.onEditRequested(widget.file);
+                },
+              ),
+            ),
+          ),
+        );
+      }
+      if (widget.includedFiles != null) {
+        children.add(
+          Tooltip(
+            message: S.of(context).includeInCollection,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: IconButton(
+                icon: Icon(
+                  widget.includedFiles!.isIncluded(widget.file)
+                      ? Icons.check_box_outlined
+                      : Icons.check_box_outline_blank,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  widget.includedFiles!.toggle(context, widget.file);
                 },
               ),
             ),

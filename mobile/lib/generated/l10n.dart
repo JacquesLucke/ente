@@ -7640,6 +7640,15 @@ class S {
     );
   }
 
+  String get includeInCollection {
+    return Intl.message(
+      'Include in collection',
+      name: 'includeInCollection',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Delete location`
   String get deleteLocation {
     return Intl.message(

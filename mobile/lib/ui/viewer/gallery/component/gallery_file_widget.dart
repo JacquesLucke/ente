@@ -73,11 +73,9 @@ class GalleryFileWidget extends StatelessWidget {
     );
     return GestureDetector(
       onTap: () {
-        isIncludedFileSelection
-            ? _onTapWithIncludedFilesSelection(context, file)
-            : (limitSelectionToOne
-                ? _onTapWithSelectionLimit(file)
-                : _onTapNoSelectionLimit(context, file));
+        limitSelectionToOne
+            ? _onTapWithSelectionLimit(file)
+            : _onTapNoSelectionLimit(context, file);
       },
       onLongPress: () {
         limitSelectionToOne
@@ -124,14 +122,19 @@ class GalleryFileWidget extends StatelessWidget {
                   ),
                 )
               : const SizedBox.shrink(),
-          isFileIncluded
-              ? const Positioned(
+          includedFiles != null
+              ? Positioned(
                   right: 4,
                   bottom: 4,
-                  child: Icon(
-                    Icons.check_box_sharp,
-                    size: 20,
-                    color: Colors.indigo,
+                  child: GestureDetector(
+                    onTap: () {
+                      _onTapWithIncludedFilesSelection(context, file);
+                    },
+                    child: Icon(
+                      Icons.check_box_sharp,
+                      size: 20,
+                      color: isFileIncluded ? Colors.indigo : Colors.white,
+                    ),
                   ),
                 )
               : const SizedBox.shrink(),

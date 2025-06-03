@@ -21,6 +21,7 @@ import "package:photos/models/button_result.dart";
 import 'package:photos/models/collection/collection.dart';
 import 'package:photos/models/device_collection.dart';
 import "package:photos/models/file/file.dart";
+import "package:photos/models/file_sort_order.dart";
 import 'package:photos/models/gallery_type.dart';
 import "package:photos/models/metadata/common_keys.dart";
 import 'package:photos/models/selected_files.dart';
@@ -734,7 +735,7 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
   }
 
   Future<void> _showSortOption(BuildContext bContext) async {
-    final bool? sortByAsc = await showMenu<bool>(
+    final FileSortOrder? sortOrder = await showMenu<FileSortOrder>(
       context: bContext,
       position: RelativeRect.fromLTRB(
         MediaQuery.of(context).size.width,
@@ -744,17 +745,21 @@ class _GalleryAppBarWidgetState extends State<GalleryAppBarWidget> {
       ),
       items: [
         PopupMenuItem(
-          value: false,
+          value: FileSortOrder(key: FileSortKey.creationDate, asc: false),
           child: Text(S.of(context).sortNewestFirst),
         ),
         PopupMenuItem(
-          value: true,
+          value: FileSortOrder(key: FileSortKey.creationDate, asc: true),
           child: Text(S.of(context).sortOldestFirst),
+        ),
+        PopupMenuItem(
+          value: FileSortOrder(key: FileSortKey.size, asc: false),
+          child: Text(S.of(context).sortLargestFirst),
         ),
       ],
     );
-    if (sortByAsc != null) {
-      unawaited(changeSortOrder(bContext, widget.collection!, sortByAsc));
+    if (sortOrder != null) {
+      unawaited(changeSortOrder(bContext, widget.collection!, sortOrder));
     }
   }
 

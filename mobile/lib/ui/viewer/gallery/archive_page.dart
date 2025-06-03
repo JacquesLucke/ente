@@ -36,14 +36,19 @@ class ArchivePage extends StatelessWidget {
     final Set<int> hiddenCollectionIDs =
         CollectionsService.instance.getHiddenCollectionIds();
     final gallery = Gallery(
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) {
+      asyncLoader: (
+        creationStartTime,
+        creationEndTime, {
+        limit,
+        sortOrder,
+      }) {
         return FilesDB.instance.getAllPendingOrUploadedFiles(
           creationStartTime,
           creationEndTime,
           Configuration.instance.getUserID()!,
           visibility: archiveVisibility,
           limit: limit,
-          asc: asc,
+          sortOrder: sortOrder,
           filterOptions: DBFilterOptions(
             hideIgnoredForUpload: true,
             dedupeUploadID: true,

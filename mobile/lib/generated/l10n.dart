@@ -6016,6 +6016,16 @@ class S {
     );
   }
 
+  /// `Largest first`
+  String get sortLargestFirst {
+    return Intl.message(
+      'Largest first',
+      name: 'sortLargestFirst',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Rename`
   String get rename {
     return Intl.message(

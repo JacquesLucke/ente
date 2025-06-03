@@ -13,6 +13,7 @@ import 'package:photos/models/backup_status.dart';
 import 'package:photos/models/file/file.dart';
 import 'package:photos/models/file/file_type.dart';
 import 'package:photos/models/file_load_result.dart';
+import "package:photos/models/file_sort_order.dart";
 import 'package:photos/models/location/location.dart';
 import "package:photos/models/metadata/common_keys.dart";
 import "package:photos/services/filter/db_filters.dart";
@@ -206,8 +207,8 @@ class FilesDB with SqlDbBase {
         FROM $filesTable;
 
         DROP TABLE $filesTable;
-        
-        ALTER TABLE $tempTable 
+
+        ALTER TABLE $tempTable
         RENAME TO $filesTable;
     '''
     ];
@@ -243,7 +244,7 @@ class FilesDB with SqlDbBase {
       ''',
       '''
         INSERT INTO $tempTable
-        SELECT 
+        SELECT
           $columnGeneratedID,
           $columnLocalID,
           $columnUploadedFileID,
@@ -268,7 +269,7 @@ class FilesDB with SqlDbBase {
         DROP TABLE $filesTable;
       ''',
       '''
-        ALTER TABLE $tempTable 
+        ALTER TABLE $tempTable
         RENAME TO $filesTable;
       ''',
     ];
@@ -311,16 +312,16 @@ class FilesDB with SqlDbBase {
   static List<String> addUniqueConstraintOnCollectionFiles() {
     return [
       '''
-      DELETE from $filesTable where $columnCollectionID || '-' || $columnUploadedFileID IN 
-      (SELECT $columnCollectionID || '-' || $columnUploadedFileID from $filesTable WHERE 
-      $columnCollectionID is not NULL AND $columnUploadedFileID is NOT NULL 
-      AND $columnCollectionID != -1 AND $columnUploadedFileID  != -1 
-      GROUP BY ($columnCollectionID || '-' || $columnUploadedFileID) HAVING count(*) > 1) 
-      AND  ($columnCollectionID || '-' ||  $columnUploadedFileID || '-' || $columnGeneratedID) NOT IN 
-      (SELECT $columnCollectionID || '-' ||  $columnUploadedFileID || '-' || max($columnGeneratedID) 
-      from $filesTable WHERE 
-      $columnCollectionID is not NULL AND $columnUploadedFileID is NOT NULL 
-      AND $columnCollectionID != -1 AND $columnUploadedFileID  != -1 GROUP BY 
+      DELETE from $filesTable where $columnCollectionID || '-' || $columnUploadedFileID IN
+      (SELECT $columnCollectionID || '-' || $columnUploadedFileID from $filesTable WHERE
+      $columnCollectionID is not NULL AND $columnUploadedFileID is NOT NULL
+      AND $columnCollectionID != -1 AND $columnUploadedFileID  != -1
+      GROUP BY ($columnCollectionID || '-' || $columnUploadedFileID) HAVING count(*) > 1)
+      AND  ($columnCollectionID || '-' ||  $columnUploadedFileID || '-' || $columnGeneratedID) NOT IN
+      (SELECT $columnCollectionID || '-' ||  $columnUploadedFileID || '-' || max($columnGeneratedID)
+      from $filesTable WHERE
+      $columnCollectionID is not NULL AND $columnUploadedFileID is NOT NULL
+      AND $columnCollectionID != -1 AND $columnUploadedFileID  != -1 GROUP BY
       ($columnCollectionID || '-' || $columnUploadedFileID) HAVING count(*) > 1);
       ''',
       '''
@@ -636,13 +637,13 @@ class FilesDB with SqlDbBase {
     int endTime,
     int ownerID, {
     int? limit,
-    bool? asc,
+    FileSortOrder? sortOrder,
     int visibility = visibleVisibility,
     DBFilterOptions? filterOptions,
     bool applyOwnerCheck = false,
   }) async {
     final stopWatch = EnteWatch('getAllPendingOrUploadedFiles')..start();
-    final order = (asc ?? false ? 'ASC' : 'DESC');
+    final order = (sortOrder?.asc ?? false ? 'ASC' : 'DESC');
 
     final subQueries = <String>[];
     late List<Object?>? args;
@@ -667,9 +668,15 @@ class FilesDB with SqlDbBase {
       args.add(ownerID);
     }
 
-    subQueries.add(
-      ' ORDER BY $columnCreationTime $order, $columnModificationTime $order',
-    );
+    if (sortOrder == null || sortOrder.key == FileSortKey.creationDate) {
+      subQueries.add(
+        ' ORDER BY $columnCreationTime $order, $columnModificationTime $order',
+      );
+    } else {
+      subQueries.add(
+        ' ORDER BY $columnFileSize $order, $columnCreationTime $order, $columnModificationTime $order',
+      );
+    }
 
     if (limit != null) {
       subQueries.add(' LIMIT ?');
@@ -694,11 +701,11 @@ class FilesDB with SqlDbBase {
     int endTime,
     int ownerID, {
     int? limit,
-    bool? asc,
+    FileSortOrder? sortOrder,
     required DBFilterOptions filterOptions,
   }) async {
     final db = await instance.sqliteAsyncDB;
-    final order = (asc ?? false ? 'ASC' : 'DESC');
+    final order = (sortOrder?.asc == true ? 'ASC' : 'DESC');
     final args = [startTime, endTime, visibleVisibility];
     final subQueries = <String>[];
 
@@ -711,9 +718,15 @@ class FilesDB with SqlDbBase {
       args.add(ownerID);
     }
 
-    subQueries.add(
-      ' ORDER BY $columnCreationTime $order, $columnModificationTime $order',
-    );
+    if (sortOrder == null || sortOrder.key == FileSortKey.creationDate) {
+      subQueries.add(
+        ' ORDER BY $columnCreationTime $order, $columnModificationTime $order',
+      );
+    } else {
+      subQueries.add(
+        ' ORDER BY $columnFileSize $order, $columnCreationTime $order, $columnModificationTime $order',
+      );
+    }
 
     if (limit != null) {
       subQueries.add(' LIMIT ?');
@@ -754,13 +767,19 @@ class FilesDB with SqlDbBase {
     int startTime,
     int endTime, {
     int? limit,
-    bool? asc,
+    FileSortOrder? sortOrder,
     int visibility = visibleVisibility,
   }) async {
     final db = await instance.sqliteAsyncDB;
-    final order = (asc ?? false ? 'ASC' : 'DESC');
+    final order = (sortOrder?.asc ?? false ? 'ASC' : 'DESC');
+    String orderBy =
+        '$columnCreationTime $order, $columnModificationTime $order';
+    if (sortOrder != null && sortOrder.key == FileSortKey.size) {
+      orderBy =
+          '$columnFileSize $order, $columnCreationTime $order, $columnModificationTime $order';
+    }
     String query =
-        'SELECT * FROM $filesTable WHERE $columnCollectionID = ? AND $columnCreationTime >= ? AND $columnCreationTime <= ? ORDER BY $columnCreationTime $order, $columnModificationTime $order';
+        'SELECT * FROM $filesTable WHERE $columnCollectionID = ? AND $columnCreationTime >= ? AND $columnCreationTime <= ? ORDER BY $orderBy';
     final List<Object> args = [collectionID, startTime, endTime];
     if (limit != null) {
       query += ' LIMIT ?';
@@ -819,7 +838,7 @@ class FilesDB with SqlDbBase {
     int endTime,
     int userID, {
     int? limit,
-    bool? asc,
+    FileSortOrder? sortOrder,
   }) async {
     if (collectionIDs.isEmpty) {
       return FileLoadResult(<EnteFile>[], false);
@@ -827,14 +846,21 @@ class FilesDB with SqlDbBase {
     final inParam = collectionIDs.map((id) => "'$id'").join(',');
 
     final db = await instance.sqliteAsyncDB;
-    final order = (asc ?? false ? 'ASC' : 'DESC');
+    final order = (sortOrder?.asc ?? false ? 'ASC' : 'DESC');
     final String whereClause =
         '$columnCollectionID  IN ($inParam) AND $columnCreationTime >= ? AND '
         '$columnCreationTime <= ? AND $columnOwnerID = ?';
     final List<Object> whereArgs = [startTime, endTime, userID];
 
-    String query = 'SELECT * FROM $filesTable WHERE $whereClause ORDER BY '
+    String orderBy =
         '$columnCreationTime $order, $columnModificationTime $order';
+    if (sortOrder != null && sortOrder.key == FileSortKey.size) {
+      orderBy =
+          '$columnFileSize $order, $columnCreationTime $order, $columnModificationTime $order';
+    }
+
+    String query =
+        'SELECT * FROM $filesTable WHERE $whereClause ORDER BY $orderBy';
     if (limit != null) {
       query += ' LIMIT ?';
       whereArgs.add(limit);
@@ -1005,7 +1031,7 @@ class FilesDB with SqlDbBase {
       '''
       UPDATE $filesTable
       SET $columnCollectionID = $collectionID
-      WHERE $columnLocalID IN ($inParam) AND ($columnCollectionID IS NULL OR 
+      WHERE $columnLocalID IN ($inParam) AND ($columnCollectionID IS NULL OR
       $columnCollectionID = -1);
     ''',
     );
@@ -1061,8 +1087,8 @@ class FilesDB with SqlDbBase {
     final db = await instance.sqliteAsyncDB;
     // on iOS, match using localID and fileType. title can either match or
     // might be null based on how the file was imported
-    String query = '''SELECT * FROM $filesTable WHERE ($columnOwnerID = ?  
-        OR $columnOwnerID IS NULL) AND $columnLocalID = ? 
+    String query = '''SELECT * FROM $filesTable WHERE ($columnOwnerID = ?
+        OR $columnOwnerID IS NULL) AND $columnLocalID = ?
         AND $columnFileType = ? AND ($columnTitle=? OR $columnTitle IS NULL) ''';
     List<Object> whereArgs = [
       ownerID,
@@ -1071,8 +1097,8 @@ class FilesDB with SqlDbBase {
       title,
     ];
     if (Platform.isAndroid) {
-      query = '''SELECT * FROM $filesTable WHERE ($columnOwnerID = ? OR  
-          $columnOwnerID IS NULL) AND $columnLocalID = ? AND $columnFileType = ? 
+      query = '''SELECT * FROM $filesTable WHERE ($columnOwnerID = ? OR
+          $columnOwnerID IS NULL) AND $columnLocalID = ? AND $columnFileType = ?
           AND $columnTitle=? AND $columnDeviceFolder= ? ''';
       whereArgs = [
         ownerID,
@@ -1360,7 +1386,7 @@ class FilesDB with SqlDbBase {
       '''
       SELECT $columnLocalID
       FROM $filesTable
-      WHERE $columnLocalID IN ($inParam) AND $columnCollectionID != 
+      WHERE $columnLocalID IN ($inParam) AND $columnCollectionID !=
       $collectionID AND $columnLocalID IS NOT NULL;
     ''',
     );
@@ -1380,9 +1406,9 @@ class FilesDB with SqlDbBase {
       '''
       SELECT $columnCollectionID, MAX($columnCreationTime) AS max_creation_time
       FROM $filesTable
-      WHERE 
+      WHERE
       ($columnCollectionID IS NOT NULL AND $columnCollectionID IS NOT -1
-       AND $columnUploadedFileID IS NOT NULL AND $columnUploadedFileID IS 
+       AND $columnUploadedFileID IS NOT NULL AND $columnUploadedFileID IS
        NOT -1)
       GROUP BY $columnCollectionID;
     ''',
@@ -1401,7 +1427,7 @@ class FilesDB with SqlDbBase {
       '''
       SELECT $columnUploadedFileID, $columnCreationTime
       FROM $filesTable
-      WHERE 
+      WHERE
       ($columnUploadedFileID IS NOT NULL AND $columnUploadedFileID IS NOT -1);
     ''',
     );
@@ -1412,20 +1438,25 @@ class FilesDB with SqlDbBase {
     return result;
   }
 
-  // getCollectionFileFirstOrLast returns the first or last uploaded file in
-  // the collection based on the given collectionID and the order.
-  Future<EnteFile?> getCollectionFileFirstOrLast(
+  // getCollectionFileFirstOrdered returns the first file in the collection based on the
+  // given ordering.
+  Future<EnteFile?> getCollectionFileFirstOrdered(
     int collectionID,
-    bool sortAsc,
+    FileSortOrder sortOrder,
   ) async {
     final db = await instance.sqliteAsyncDB;
-    final order = sortAsc ? 'ASC' : 'DESC';
+    final order = sortOrder.asc ? 'ASC' : 'DESC';
+    String orderBy =
+        "$columnCreationTime $order, $columnModificationTime $order";
+    if (sortOrder.key == FileSortKey.size) {
+      orderBy = "$columnFileSize $order, " + orderBy;
+    }
     final rows = await db.getAll(
       '''
       SELECT * FROM $filesTable
       WHERE $columnCollectionID = ? AND ($columnUploadedFileID IS NOT NULL
       AND $columnUploadedFileID IS NOT -1)
-      ORDER BY $columnCreationTime $order, $columnModificationTime $order
+      ORDER BY $orderBy
       LIMIT 1;
     ''',
       [collectionID],
@@ -1593,7 +1624,7 @@ class FilesDB with SqlDbBase {
     final rows = await db.getAll(
       '''
       SELECT DISTINCT $columnLocalID FROM $filesTable
-      WHERE $columnOwnerID = ? AND $columnLocalID IS NOT NULL AND 
+      WHERE $columnOwnerID = ? AND $columnLocalID IS NOT NULL AND
       ($columnLatitude IS NULL OR $columnLongitude IS NULL OR $columnLatitude = 0.0 or $columnLongitude = 0.0)
     ''',
       [ownerID],
@@ -1725,12 +1756,12 @@ class FilesDB with SqlDbBase {
     final db = await instance.sqliteAsyncDB;
     final order = (asc ?? false ? 'ASC' : 'DESC');
     String query = '''
-      SELECT * FROM $filesTable 
+      SELECT * FROM $filesTable
       WHERE $columnLatitude IS NOT NULL AND $columnLongitude IS NOT NULL AND
-      ($columnLatitude IS NOT 0 OR $columnLongitude IS NOT 0) AND 
+      ($columnLatitude IS NOT 0 OR $columnLongitude IS NOT 0) AND
       $columnCreationTime >= ? AND $columnCreationTime <= ? AND
-      ($columnLocalID IS NOT NULL OR ($columnCollectionID IS NOT NULL AND 
-      $columnCollectionID IS NOT -1)) 
+      ($columnLocalID IS NOT NULL OR ($columnCollectionID IS NOT NULL AND
+      $columnCollectionID IS NOT -1))
       ORDER BY $columnCreationTime $order, $columnModificationTime $order
       ''';
 
@@ -1755,7 +1786,7 @@ class FilesDB with SqlDbBase {
     final db = await instance.sqliteAsyncDB;
     final results = await db.getAll('''
       SELECT DISTINCT $columnUploadedFileID FROM $filesTable
-      WHERE  $columnUploadedFileID IS NOT NULL AND $columnUploadedFileID IS NOT -1    
+      WHERE  $columnUploadedFileID IS NOT NULL AND $columnUploadedFileID IS NOT -1
     ''');
     final ids = <int>{};
     for (final result in results) {

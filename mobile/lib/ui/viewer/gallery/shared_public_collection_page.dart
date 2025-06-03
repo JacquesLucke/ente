@@ -70,9 +70,14 @@ class _SharedPublicCollectionPageState
     final List<EnteFile>? initialFiles =
         widget.c.thumbnail != null ? [widget.c.thumbnail!] : null;
     final gallery = Gallery(
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) async {
+      asyncLoader: (
+        creationStartTime,
+        creationEndTime, {
+        limit,
+        sortOrder,
+      }) async {
         widget.files!.sort(
-          (a, b) => b.creationTime!.compareTo(a.creationTime!),
+          (a, b) => sortOrder?.compare(a, b) ?? 0,
         );
 
         return FileLoadResult(widget.files!, false);
@@ -117,7 +122,7 @@ class _SharedPublicCollectionPageState
               ),
             )
           : null,
-      sortAsyncFn: () => widget.c.collection.pubMagicMetadata.asc ?? false,
+      sortAsyncFn: () => widget.c.collection.pubMagicMetadata.fileSortOrder,
     );
 
     return GalleryFilesState(

@@ -88,7 +88,7 @@ class PickCoverPhotoWidget extends StatelessWidget {
                                 creationStartTime,
                                 creationEndTime, {
                                 limit,
-                                asc,
+                                sortOrder,
                               }) async {
                                 final FileLoadResult result =
                                     await FilesDB.instance.getFilesInCollection(
@@ -96,7 +96,7 @@ class PickCoverPhotoWidget extends StatelessWidget {
                                   creationStartTime,
                                   creationEndTime,
                                   limit: limit,
-                                  asc: asc,
+                                  sortOrder: sortOrder,
                                 );
                                 // hide ignored files from home page UI
                                 final ignoredIDs = await IgnoredFilesService
@@ -120,7 +120,7 @@ class PickCoverPhotoWidget extends StatelessWidget {
                               limitSelectionToOne: true,
                               showSelectAllByDefault: false,
                               sortAsyncFn: () =>
-                                  collection.pubMagicMetadata.asc ?? false,
+                                  collection.pubMagicMetadata.fileSortOrder,
                             ),
                           ),
                         ),

@@ -281,7 +281,7 @@ class _Gallery extends StatelessWidget {
         creationStartTime,
         creationEndTime, {
         limit,
-        asc,
+        sortOrder,
       }) async {
         final result = await loadPersonFiles();
         return Future.value(

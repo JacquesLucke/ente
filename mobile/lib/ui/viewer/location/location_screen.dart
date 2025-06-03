@@ -216,7 +216,7 @@ class _LocationGalleryWidgetState extends State<LocationGalleryWidget> {
                                   creationStartTime,
                                   creationEndTime, {
                                   limit,
-                                  asc,
+                                  sortOrder,
                                 }) async {
                                   return snapshot.data as FileLoadResult;
                                 },

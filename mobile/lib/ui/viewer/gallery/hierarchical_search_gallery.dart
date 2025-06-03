@@ -148,7 +148,7 @@ class _HierarchicalSearchGalleryState extends State<HierarchicalSearchGallery> {
                     creationStartTime,
                     creationEndTime, {
                     limit,
-                    asc,
+                    sortOrder,
                   }) async {
                     final files = _filterdFiles
                         .where(

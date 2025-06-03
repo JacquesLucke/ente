@@ -39,14 +39,19 @@ class UnCategorizedPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gallery = Gallery(
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) async {
+      asyncLoader: (
+        creationStartTime,
+        creationEndTime, {
+        limit,
+        sortOrder,
+      }) async {
         final FileLoadResult result =
             await FilesDB.instance.getFilesInCollection(
           collection.id,
           creationStartTime,
           creationEndTime,
           limit: limit,
-          asc: asc,
+          sortOrder: sortOrder,
         );
         // hide ignored files from home page UI
         final ignoredIDs =
@@ -75,7 +80,7 @@ class UnCategorizedPage extends StatelessWidget {
       ],
       tagPrefix: tagPrefix,
       selectedFiles: _selectedFiles,
-      sortAsyncFn: () => collection.pubMagicMetadata.asc ?? false,
+      sortAsyncFn: () => collection.pubMagicMetadata.fileSortOrder,
       initialFiles: null,
       albumName: S.of(context).uncategorized,
     );

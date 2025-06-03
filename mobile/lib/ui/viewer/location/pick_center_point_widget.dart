@@ -90,7 +90,7 @@ class PickCenterPointWidget extends StatelessWidget {
                                 creationStartTime,
                                 creationEndTime, {
                                 limit,
-                                asc,
+                                sortOrder,
                               }) async {
                                 final collectionsToHide = CollectionsService
                                     .instance

@@ -35,14 +35,19 @@ class DeviceFolderPage extends StatelessWidget {
   Widget build(Object context) {
     final int? userID = Configuration.instance.getUserID();
     final gallery = Gallery(
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) {
+      asyncLoader: (
+        creationStartTime,
+        creationEndTime, {
+        limit,
+        sortOrder,
+      }) {
         return FilesDB.instance.getFilesInDeviceCollection(
           deviceCollection,
           userID,
           creationStartTime,
           creationEndTime,
           limit: limit,
-          asc: asc,
+          sortOrder: sortOrder,
         );
       },
       reloadEvent: Bus.instance.on<LocalPhotosUpdatedEvent>(),

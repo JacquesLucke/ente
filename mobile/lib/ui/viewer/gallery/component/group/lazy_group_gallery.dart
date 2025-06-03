@@ -129,7 +129,7 @@ class _LazyGroupGalleryState extends State<LazyGroupGallery> {
         final result = await widget.asyncLoader(
           startRange,
           endRange,
-          asc: GalleryContextState.of(context)!.sortOrderAsc,
+          sortOrder: GalleryContextState.of(context)!.sortOrder,
         );
 
         //When items are updated in a LazyGroupGallery, only it rebuilds with the

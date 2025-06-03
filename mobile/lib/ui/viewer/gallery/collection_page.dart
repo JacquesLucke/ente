@@ -54,14 +54,19 @@ class CollectionPage extends StatelessWidget {
     final List<EnteFile>? initialFiles =
         c.thumbnail != null ? [c.thumbnail!] : null;
     final gallery = Gallery(
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) async {
+      asyncLoader: (
+        creationStartTime,
+        creationEndTime, {
+        limit,
+        sortOrder,
+      }) async {
         final FileLoadResult result =
             await FilesDB.instance.getFilesInCollection(
           c.collection.id,
           creationStartTime,
           creationEndTime,
           limit: limit,
-          asc: asc,
+          sortOrder: sortOrder,
         );
         // hide ignored files from home page UI
         final ignoredIDs =
@@ -92,7 +97,7 @@ class CollectionPage extends StatelessWidget {
       selectedFiles: _selectedFiles,
       initialFiles: initialFiles,
       albumName: c.collection.displayName,
-      sortAsyncFn: () => c.collection.pubMagicMetadata.asc ?? false,
+      sortAsyncFn: () => c.collection.pubMagicMetadata.fileSortOrder,
       showSelectAllByDefault: galleryType != GalleryType.sharedCollection,
       emptyState: galleryType == GalleryType.ownedCollection
           ? EmptyAlbumState(

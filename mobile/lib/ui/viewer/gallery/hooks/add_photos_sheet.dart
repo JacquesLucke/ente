@@ -10,6 +10,7 @@ import "package:photos/db/files_db.dart";
 import "package:photos/generated/l10n.dart";
 import "package:photos/l10n/l10n.dart";
 import 'package:photos/models/collection/collection.dart';
+import "package:photos/models/file_sort_order.dart";
 import "package:photos/models/selected_files.dart";
 import "package:photos/service_locator.dart";
 import "package:photos/services/collections_service.dart";
@@ -288,14 +289,14 @@ class _DelayedGalleryState extends State<DelayedGallery> {
             creationStartTime,
             creationEndTime, {
             limit,
-            asc,
+            sortOrder,
           }) {
             return FilesDB.instance.getAllPendingOrUploadedFiles(
               creationStartTime,
               creationEndTime,
               Configuration.instance.getUserID()!,
               limit: limit,
-              asc: asc,
+              sortOrder: sortOrder,
               filterOptions: DBFilterOptions(
                 hideIgnoredForUpload: true,
                 dedupeUploadID: true,
@@ -307,7 +308,7 @@ class _DelayedGalleryState extends State<DelayedGallery> {
           tagPrefix: "pick_add_photos_gallery",
           selectedFiles: widget.selectedFiles,
           showSelectAllByDefault: true,
-          sortAsyncFn: () => false,
+          sortAsyncFn: () => FileSortOrder(),
         ).animate().fadeIn(
               duration: const Duration(milliseconds: 175),
               curve: Curves.easeOutCirc,

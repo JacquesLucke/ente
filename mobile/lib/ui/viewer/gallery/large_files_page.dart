@@ -7,6 +7,7 @@ import "package:photos/generated/l10n.dart";
 import "package:photos/models/file/extensions/file_props.dart";
 import "package:photos/models/file/file.dart";
 import 'package:photos/models/file_load_result.dart';
+import "package:photos/models/file_sort_order.dart";
 import 'package:photos/models/gallery_type.dart';
 import 'package:photos/models/selected_files.dart';
 import "package:photos/services/search_service.dart";
@@ -33,7 +34,12 @@ class LargeFilesPagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gallery = Gallery(
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) async {
+      asyncLoader: (
+        creationStartTime,
+        creationEndTime, {
+        limit,
+        sortOrder,
+      }) async {
         final List<EnteFile> allFiles =
             await SearchService.instance.getAllFilesForSearch();
         final Set<int> alreadyTracked = <int>{};
@@ -64,7 +70,7 @@ class LargeFilesPagePage extends StatelessWidget {
       ],
       tagPrefix: tagPrefix,
       selectedFiles: _selectedFiles,
-      sortAsyncFn: () => false,
+      sortAsyncFn: () => FileSortOrder(),
       groupType: GroupType.size,
       initialFiles: null,
       albumName: S.of(context).viewLargeFiles,

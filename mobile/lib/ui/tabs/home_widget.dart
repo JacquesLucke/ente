@@ -331,7 +331,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                         await _diffFetcher.getPublicFiles(
                       context,
                       collection.id,
-                      collection.pubMagicMetadata.asc ?? false,
+                      collection.pubMagicMetadata.fileSortOrder,
                     );
                     await dialog.hide();
                     Navigator.of(context).pop();
@@ -362,7 +362,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         final List<EnteFile> sharedFiles = await _diffFetcher.getPublicFiles(
           context,
           collection.id,
-          collection.pubMagicMetadata.asc ?? false,
+          collection.pubMagicMetadata.fileSortOrder,
         );
         await dialog.hide();
 

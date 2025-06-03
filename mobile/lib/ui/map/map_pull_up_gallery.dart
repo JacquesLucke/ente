@@ -171,7 +171,7 @@ class _MapPullUpGalleryState extends State<MapPullUpGallery> {
                         creationStartTime,
                         creationEndTime, {
                         limit,
-                        asc,
+                        sortOrder,
                       }) async {
                         FileLoadResult result;
                         result = FileLoadResult(images, false);

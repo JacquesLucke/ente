@@ -136,7 +136,7 @@ class _MagicResultScreenState extends State<MagicResultScreen> {
   Widget build(BuildContext context) {
     final gallery = Gallery(
       key: ValueKey(_enableGrouping),
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) {
+      asyncLoader: (creationStartTime, creationEndTime, {limit, sortOrder}) {
         final result = files
             .where(
               (file) =>

@@ -69,7 +69,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
   @override
   Widget build(BuildContext context) {
     final gallery = Gallery(
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) {
+      asyncLoader: (creationStartTime, creationEndTime, {limit, sortOrder}) {
         final result = files
             .where(
               (file) =>

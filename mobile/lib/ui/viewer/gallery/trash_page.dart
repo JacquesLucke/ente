@@ -34,12 +34,12 @@ class TrashPage extends StatelessWidget {
     final bool filesAreSelected = _selectedFiles.files.isNotEmpty;
 
     final gallery = Gallery(
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) {
+      asyncLoader: (creationStartTime, creationEndTime, {limit, sortOrder}) {
         return TrashDB.instance.getTrashedFiles(
           creationStartTime,
           creationEndTime,
           limit: limit,
-          asc: asc,
+          sortOrder: sortOrder,
         );
       },
       reloadEvent: Bus.instance.on<FilesUpdatedEvent>().where(

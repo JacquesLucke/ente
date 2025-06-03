@@ -103,7 +103,7 @@ class PickPersonCoverPhotoWidget extends StatelessWidget {
                                 creationStartTime,
                                 creationEndTime, {
                                 limit,
-                                asc,
+                                sortOrder,
                               }) async {
                                 final FileLoadResult result =
                                     await loadPersonFiles();

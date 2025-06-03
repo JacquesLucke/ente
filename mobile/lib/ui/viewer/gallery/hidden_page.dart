@@ -88,14 +88,14 @@ class _HiddenPageState extends State<HiddenPage> {
       return const EnteLoadingWidget();
     }
     final gallery = Gallery(
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) {
+      asyncLoader: (creationStartTime, creationEndTime, {limit, sortOrder}) {
         return FilesDB.instance.getFilesInCollections(
           [_defaultHiddenCollectionId!],
           creationStartTime,
           creationEndTime,
           Configuration.instance.getUserID()!,
           limit: limit,
-          asc: asc,
+          sortOrder: sortOrder,
         );
       },
       reloadEvent: Bus.instance.on<FilesUpdatedEvent>().where(

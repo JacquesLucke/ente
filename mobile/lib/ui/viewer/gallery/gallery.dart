@@ -10,6 +10,7 @@ import 'package:photos/events/files_updated_event.dart';
 import 'package:photos/events/tab_changed_event.dart';
 import 'package:photos/models/file/file.dart';
 import 'package:photos/models/file_load_result.dart';
+import "package:photos/models/file_sort_order.dart";
 import 'package:photos/models/selected_files.dart';
 import 'package:photos/ui/common/loading_widget.dart';
 import "package:photos/ui/viewer/gallery/component/group/type.dart";
@@ -27,10 +28,10 @@ typedef GalleryLoader = Future<FileLoadResult> Function(
   int creationStartTime,
   int creationEndTime, {
   int? limit,
-  bool? asc,
+  FileSortOrder? sortOrder,
 });
 
-typedef SortAscFn = bool Function();
+typedef SortOrderFn = FileSortOrder Function();
 
 class Gallery extends StatefulWidget {
   final GalleryLoader asyncLoader;
@@ -64,7 +65,7 @@ class Gallery extends StatefulWidget {
   final bool isScrollablePositionedList;
 
   // add a Function variable to get sort value in bool
-  final SortAscFn? sortAsyncFn;
+  final SortOrderFn? sortAsyncFn;
   final GroupType groupType;
 
   const Gallery({
@@ -112,7 +113,7 @@ class GalleryState extends State<Gallery> {
   StreamSubscription<TabDoubleTapEvent>? _tabDoubleTapEvent;
   final _forceReloadEventSubscriptions = <StreamSubscription<Event>>[];
   late String _logTag;
-  bool _sortOrderAsc = false;
+  FileSortOrder _sortOrder = FileSortOrder();
   List<EnteFile> _allGalleryFiles = [];
 
   @override
@@ -128,7 +129,8 @@ class GalleryState extends State<Gallery> {
       executionInterval: widget.reloadDebounceExecutionInterval,
       leading: true,
     );
-    _sortOrderAsc = widget.sortAsyncFn != null ? widget.sortAsyncFn!() : false;
+    _sortOrder =
+        widget.sortAsyncFn != null ? widget.sortAsyncFn!() : FileSortOrder();
     _itemScroller = ItemScrollController();
     if (widget.reloadEvent != null) {
       _reloadEventSubscription = widget.reloadEvent!.listen((event) async {
@@ -180,8 +182,9 @@ class GalleryState extends State<Gallery> {
           event.listen((event) async {
             _debouncer.run(() async {
               _logger.finest("Force refresh all files on ${event.reason}");
-              _sortOrderAsc =
-                  widget.sortAsyncFn != null ? widget.sortAsyncFn!() : false;
+              _sortOrder = widget.sortAsyncFn != null
+                  ? widget.sortAsyncFn!()
+                  : FileSortOrder();
               final result = await _loadFiles();
               _setFilesAndReload(result.files);
             });
@@ -189,7 +192,8 @@ class GalleryState extends State<Gallery> {
         );
       }
     }
-    if (widget.initialFiles != null && !_sortOrderAsc) {
+    // TODO: What is the purpose of the check for asc?
+    if (widget.initialFiles != null && !_sortOrder.asc) {
       _onFilesLoaded(widget.initialFiles!);
     }
     _loadFiles(limit: kInitialLoadLimit).then((result) async {
@@ -325,7 +329,7 @@ class GalleryState extends State<Gallery> {
         galleryLoadStartTime,
         galleryLoadEndTime,
         limit: limit,
-        asc: _sortOrderAsc,
+        sortOrder: _sortOrder,
       );
       final endTime = DateTime.now().microsecondsSinceEpoch;
       final duration = Duration(microseconds: endTime - startTime);
@@ -376,7 +380,7 @@ class GalleryState extends State<Gallery> {
       return widget.loadingWidget;
     }
     return GalleryContextState(
-      sortOrderAsc: _sortOrderAsc,
+      sortOrder: _sortOrder,
       inSelectionMode: widget.inSelectionMode,
       type: widget.groupType,
       child: MultipleGroupsGalleryView(
@@ -409,7 +413,7 @@ class GalleryState extends State<Gallery> {
     if (widget.groupType == GroupType.size) {
       // sort files by fileSize on the bases of _sortOrderAsc
       files.sort((a, b) {
-        if (_sortOrderAsc) {
+        if (_sortOrder.asc) {
           return a.fileSize!.compareTo(b.fileSize!);
         } else {
           return b.fileSize!.compareTo(a.fileSize!);
@@ -455,7 +459,7 @@ class GalleryState extends State<Gallery> {
     if (dailyFiles.isNotEmpty) {
       resultGroupedFiles.add(dailyFiles);
     }
-    if (_sortOrderAsc) {
+    if (_sortOrder.asc) {
       resultGroupedFiles
           .sort((a, b) => a[0].creationTime!.compareTo(b[0].creationTime!));
     } else {

@@ -76,7 +76,12 @@ class _HomeGalleryWidgetState extends State<HomeGalleryWidget> {
     final double bottomSafeArea = MediaQuery.paddingOf(context).bottom;
     final gallery = Gallery(
       key: ValueKey(_shouldHideSharedItems),
-      asyncLoader: (creationStartTime, creationEndTime, {limit, asc}) async {
+      asyncLoader: (
+        creationStartTime,
+        creationEndTime, {
+        limit,
+        sortOrder,
+      }) async {
         final ownerID = Configuration.instance.getUserID();
         final hasSelectedAllForBackup =
             Configuration.instance.hasSelectedAllFoldersForBackup();
@@ -96,7 +101,7 @@ class _HomeGalleryWidgetState extends State<HomeGalleryWidget> {
             creationEndTime,
             ownerID!,
             limit: limit,
-            asc: asc,
+            sortOrder: sortOrder,
             filterOptions: filterOptions,
           );
         } else {
@@ -105,7 +110,7 @@ class _HomeGalleryWidgetState extends State<HomeGalleryWidget> {
             creationEndTime,
             ownerID!,
             limit: limit,
-            asc: asc,
+            sortOrder: sortOrder,
             filterOptions: filterOptions,
           );
         }

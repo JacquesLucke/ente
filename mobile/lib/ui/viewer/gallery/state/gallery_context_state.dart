@@ -1,16 +1,16 @@
 import "package:flutter/material.dart";
+import "package:photos/models/file_sort_order.dart";
 import "package:photos/ui/viewer/gallery/component/group/type.dart";
 
 class GalleryContextState extends InheritedWidget {
-  ///Sorting by creation time
-  final bool sortOrderAsc;
+  final FileSortOrder sortOrder;
   final bool inSelectionMode;
   final GroupType type;
 
   const GalleryContextState({
     this.inSelectionMode = false,
     this.type = GroupType.day,
-    required this.sortOrderAsc,
+    required this.sortOrder,
     required super.child,
     super.key,
   });
@@ -21,7 +21,7 @@ class GalleryContextState extends InheritedWidget {
 
   @override
   bool updateShouldNotify(GalleryContextState oldWidget) {
-    return sortOrderAsc != oldWidget.sortOrderAsc ||
+    return sortOrder != oldWidget.sortOrder ||
         inSelectionMode != oldWidget.inSelectionMode ||
         type != oldWidget.type;
   }

@@ -11,6 +11,7 @@ import 'package:photos/events/force_reload_home_gallery_event.dart';
 import "package:photos/generated/l10n.dart";
 import 'package:photos/models/collection/collection.dart';
 import 'package:photos/models/file/file.dart';
+import "package:photos/models/file_sort_order.dart";
 import "package:photos/models/metadata/collection_magic.dart";
 import "package:photos/models/metadata/common_keys.dart";
 import "package:photos/models/metadata/file_magic.dart";
@@ -105,10 +106,13 @@ Future<void> changeCollectionVisibility(
 Future<void> changeSortOrder(
   BuildContext context,
   Collection collection,
-  bool sortedInAscOrder,
+  FileSortOrder sortOrder,
 ) async {
   try {
-    final Map<String, dynamic> update = {"asc": sortedInAscOrder};
+    final Map<String, dynamic> update = {
+      "asc": sortOrder.asc,
+      "sortKey": sortOrder.key.name,
+    };
     await CollectionsService.instance
         .updatePublicMagicMetadata(collection, update);
     Bus.instance.fire(

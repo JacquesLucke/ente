@@ -297,9 +297,9 @@ class CollectionsService {
         return Future.value(cover);
       }
     }
-    final coverFile = await filesDB.getCollectionFileFirstOrLast(
+    final coverFile = await filesDB.getCollectionFileFirstOrdered(
       c.id,
-      c.pubMagicMetadata.asc ?? false,
+      c.pubMagicMetadata.fileSortOrder,
     );
     if (coverFile != null) {
       _coverCache[coverKey] = coverFile;

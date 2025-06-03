@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import "package:photos/models/file_sort_order.dart";
 import "package:photos/models/metadata/common_keys.dart";
 
 // Collection SubType Constants
@@ -63,17 +64,30 @@ class CollectionPubMagicMetadata {
   // sort order while showing collection
   bool? asc;
 
+  // sort key while showing collection
+  FileSortKey? sortKey;
+
   // cover photo id for the collection
   int? coverID;
 
-  CollectionPubMagicMetadata({this.asc, this.coverID});
+  CollectionPubMagicMetadata({this.asc, this.sortKey, this.coverID});
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> result = {"asc": asc ?? false};
+    if (sortKey != null) {
+      result["sortKey"] = sortKey!.name;
+    }
     if (coverID != null) {
       result["coverID"] = coverID!;
     }
     return result;
+  }
+
+  get fileSortOrder {
+    return FileSortOrder(
+      key: sortKey ?? FileSortKey.creationDate,
+      asc: asc ?? false,
+    );
   }
 
   factory CollectionPubMagicMetadata.fromEncodedJson(String encodedJson) =>
@@ -84,8 +98,16 @@ class CollectionPubMagicMetadata {
 
   static fromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
+    final sortKeyString = map["sortKey"] as String?;
+    FileSortKey? sortKey;
+    if (sortKeyString == "size") {
+      sortKey = FileSortKey.size;
+    } else if (sortKeyString == "creationDate") {
+      sortKey = FileSortKey.creationDate;
+    }
     return CollectionPubMagicMetadata(
       asc: map["asc"] as bool?,
+      sortKey: sortKey,
       coverID: map["coverID"],
     );
   }

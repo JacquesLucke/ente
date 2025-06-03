@@ -9,6 +9,7 @@ import 'package:photos/core/network/network.dart';
 import 'package:photos/db/files_db.dart';
 import 'package:photos/generated/l10n.dart';
 import 'package:photos/models/file/file.dart';
+import "package:photos/models/file_sort_order.dart";
 import "package:photos/models/metadata/file_magic.dart";
 import "package:photos/services/collections_service.dart";
 import "package:photos/utils/dialog_util.dart";
@@ -21,7 +22,7 @@ class DiffFetcher {
   Future<List<EnteFile>> getPublicFiles(
     BuildContext context,
     int collectionID,
-    bool sortAsc,
+    FileSortOrder sortOrder,
   ) async {
     try {
       final authToken = await CollectionsService.instance
@@ -96,9 +97,7 @@ class DiffFetcher {
           sinceTime = diff.last["updationTime"];
         }
       } while (hasMore);
-      if (sortAsc) {
-        sharedFiles.sort((a, b) => a.creationTime!.compareTo(b.creationTime!));
-      }
+      sharedFiles.sort((a, b) => sortOrder.compare(a, b));
       return sharedFiles;
     } catch (e, s) {
       _logger.severe("Failed to decrypt collection ", e, s);

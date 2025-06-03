@@ -7,6 +7,7 @@ import 'package:photos/models/backup_status.dart';
 import 'package:photos/models/device_collection.dart';
 import 'package:photos/models/file/file.dart';
 import 'package:photos/models/file_load_result.dart';
+import "package:photos/models/file_sort_order.dart";
 import 'package:photos/models/upload_strategy.dart';
 import "package:photos/services/sync/import/model.dart";
 import 'package:sqflite/sqlite_api.dart';
@@ -213,7 +214,7 @@ extension DeviceFiles on FilesDB {
           hasUpdated = true;
           await db.execute(
             '''
-            INSERT INTO device_collections (id, name, count, cover_id, should_backup) 
+            INSERT INTO device_collections (id, name, count, cover_id, should_backup)
             VALUES (?, ?, ?, ?, ?);
           ''',
             [
@@ -267,8 +268,8 @@ extension DeviceFiles on FilesDB {
     final db = await sqliteAsyncDB;
     final rows = await db.getAll(
       '''
-      SELECT collection_id FROM device_collections where should_backup = 
-      $_sqlBoolTrue 
+      SELECT collection_id FROM device_collections where should_backup =
+      $_sqlBoolTrue
       and collection_id != -1;
       ''',
     );
@@ -330,21 +331,27 @@ extension DeviceFiles on FilesDB {
     int startTime,
     int endTime, {
     int? limit,
-    bool? asc,
+    FileSortOrder? sortOrder,
   }) async {
     final db = await sqliteAsyncDB;
-    final order = (asc ?? false ? 'ASC' : 'DESC');
+    final order = (sortOrder?.asc ?? false ? 'ASC' : 'DESC');
+    String orderBy =
+        '${FilesDB.columnCreationTime} $order, ${FilesDB.columnModificationTime} $order';
+    if (sortOrder != null && sortOrder.key == FileSortKey.size) {
+      orderBy =
+          '${FilesDB.columnFileSize} $order, ${FilesDB.columnCreationTime} $order, ${FilesDB.columnModificationTime} $order';
+    }
     final String rawQuery = '''
     SELECT *
           FROM ${FilesDB.filesTable}
           WHERE ${FilesDB.columnLocalID} IS NOT NULL AND
-          ${FilesDB.columnCreationTime} >= $startTime AND 
+          ${FilesDB.columnCreationTime} >= $startTime AND
           ${FilesDB.columnCreationTime} <= $endTime AND
-          (${FilesDB.columnOwnerID} IS NULL OR ${FilesDB.columnOwnerID} = 
-          $ownerID ) AND 
-          ${FilesDB.columnLocalID} IN 
-          (SELECT id FROM device_files where path_id = '${deviceCollection.id}' ) 
-          ORDER BY ${FilesDB.columnCreationTime} $order , ${FilesDB.columnModificationTime} $order
+          (${FilesDB.columnOwnerID} IS NULL OR ${FilesDB.columnOwnerID} =
+          $ownerID ) AND
+          ${FilesDB.columnLocalID} IN
+          (SELECT id FROM device_files where path_id = '${deviceCollection.id}' )
+          ORDER BY $orderBy
          ''' +
         (limit != null ? ' limit $limit;' : ';');
     final results = await db.getAll(rawQuery);
@@ -359,14 +366,14 @@ extension DeviceFiles on FilesDB {
   ) async {
     final db = await sqliteAsyncDB;
     const String rawQuery = '''
-    SELECT ${FilesDB.columnLocalID}, ${FilesDB.columnUploadedFileID}, 
-    ${FilesDB.columnFileSize} 
+    SELECT ${FilesDB.columnLocalID}, ${FilesDB.columnUploadedFileID},
+    ${FilesDB.columnFileSize}
     FROM ${FilesDB.filesTable}
           WHERE ${FilesDB.columnLocalID} IS NOT NULL AND
           (${FilesDB.columnOwnerID} IS NULL OR ${FilesDB.columnOwnerID} = ?)
           AND (${FilesDB.columnUploadedFileID} IS NOT NULL AND ${FilesDB.columnUploadedFileID} IS NOT -1)
-          AND 
-          ${FilesDB.columnLocalID} IN 
+          AND
+          ${FilesDB.columnLocalID} IN
           (SELECT id FROM device_files where path_id = ?)
           ''';
     final results = await db.getAll(rawQuery, [ownerID, pathID]);
@@ -453,7 +460,7 @@ extension DeviceFiles on FilesDB {
     debugPrint("Call fallback method to get potential thumbnail");
     final db = await sqliteAsyncDB;
     final fileRows = await db.getAll(
-      '''SELECT * FROM FILES  f JOIN device_files df on f.local_id = df.id 
+      '''SELECT * FROM FILES  f JOIN device_files df on f.local_id = df.id
       and df.path_id= ? order by f.creation_time DESC limit 1;
           ''',
       [pathID],

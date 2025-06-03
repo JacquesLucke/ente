@@ -6,6 +6,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photos/models/file/trash_file.dart';
 import 'package:photos/models/file_load_result.dart';
+import "package:photos/models/file_sort_order.dart";
 import 'package:sqflite/sqflite.dart';
 
 // The TrashDB doesn't need to flatten and store all attributes of a file.
@@ -63,7 +64,7 @@ class TrashDB {
           $columnPubMMdEncodedJson TEXT DEFAULT '{}',
           $columnPubMMdVersion INTEGER DEFAULT 0
         );
-      CREATE INDEX IF NOT EXISTS creation_time_index ON $tableName($columnCreationTime); 
+      CREATE INDEX IF NOT EXISTS creation_time_index ON $tableName($columnCreationTime);
       CREATE INDEX IF NOT EXISTS delete_by_time_index ON $tableName($columnTrashDeleteBy);
       CREATE INDEX IF NOT EXISTS updated_at_time_index ON $tableName($columnTrashUpdatedAt);
       ''',
@@ -164,10 +165,10 @@ class TrashDB {
     int startTime,
     int endTime, {
     int? limit,
-    bool? asc,
+    FileSortOrder? sortOrder,
   }) async {
     final db = await instance.database;
-    final order = (asc ?? false ? 'ASC' : 'DESC');
+    final order = (sortOrder?.asc ?? false ? 'ASC' : 'DESC');
     final results = await db.query(
       tableName,
       where: '$columnCreationTime >= ? AND $columnCreationTime <= ?',
